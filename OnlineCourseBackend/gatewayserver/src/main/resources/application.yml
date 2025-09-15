@@ -1,0 +1,32 @@
+server:
+  port: 8072
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      access: unrestricted
+spring:
+  application:
+    name: "gatewayserver"
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:7080/realms/OnlineCourseRealm/protocol/openid-connect/certs"
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/

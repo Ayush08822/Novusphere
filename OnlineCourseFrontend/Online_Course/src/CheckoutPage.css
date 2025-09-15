@@ -1,0 +1,173 @@
+/* Main Layout */
+.checkout-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding: 40px;
+  background-color: #f9f9f9;
+}
+
+.checkout-left,
+.checkout-right {
+  flex: 1;
+  min-width: 320px;
+}
+
+/* Form Styling */
+.billing-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+/* Side-by-side inputs */
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* Payment Method Styles */
+.payment-methods {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.payment-option {
+  display: flex;
+  flex-direction: row; /* label next to radio button */
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+
+.payment-option input[type="radio"] {
+  accent-color: #1a151b;
+  transform: scale(1.1);
+  margin: 0;
+}
+
+.payment-option span {
+  min-width: 140px; /* Ensures all label spans align */
+}
+
+/* Order Details List */
+.order-details-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+}
+
+.order-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.order-detail-image {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.order-detail-info {
+  flex: 1;
+}
+
+.title-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.order-title {
+  font-weight: 500;
+  color: #333;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.order-price {
+  font-weight: bold;
+  color: #1f2937;
+  white-space: nowrap;
+}
+
+/* Right Summary Section */
+.checkout-right {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+}
+
+.summary-info p {
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+
+.place-order-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: #1a151b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.place-order-btn:hover {
+  background-color: #0284c7;
+}
+/* Stripe card styles */
+.card-element-wrapper {
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 100%;
+}
+
+/* Ensure pay button matches other styling */
+.place-order-btn {
+  margin: 16px 0;
+  width: 100%;
+}
+
+/* Responsive Tweak */
+@media (max-width: 768px) {
+  .title-price-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .checkout-container {
+    padding: 20px;
+  }
+
+  .order-title,
+  .order-price {
+    font-size: 0.95rem;
+  }
+}

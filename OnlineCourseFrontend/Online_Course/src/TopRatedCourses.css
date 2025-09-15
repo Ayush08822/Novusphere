@@ -1,0 +1,188 @@
+.featured-courses {
+  margin-left: 0;
+  padding-left: 0;
+  width: 100%;
+}
+
+.featured-courses h2 {
+  margin-left: 15px;
+  padding: 20px;
+}
+
+.course-cards {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto; /* enable horizontal scroll if needed */
+}
+
+.course-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  min-width: 0; /* Ensure the course-link can shrink, crucial for text-overflow to work within it */
+  flex: 0 0 calc((100% / 5) - 8px); /* same width as original course-card */
+}
+
+/* Don't add padding/margin here – it's handled in course-card */
+.course-card {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  flex: 1;
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  cursor: pointer;
+  min-width: 0; /* Ensure course-card itself can shrink */
+}
+
+.course-thumbnail img {
+  width: 35vh;
+  height: 20vh;
+  object-fit: cover;
+  margin-left: 32px; /* Keep this for image alignment */
+}
+
+.course-info {
+  padding: 8px 0 8px 32px; /* Top, Right, Bottom, Left padding */
+  font-size: 0.9rem;
+  color: #222;
+  min-width: 0;
+}
+
+.course-info h3 {
+  margin-left: 49px;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.3em;
+  max-height: calc(1.3em * 2); /* Ensures only 2 lines show */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  word-break: break-word;
+  white-space: normal;
+  text-align: left;
+}
+
+.course-authors {
+  margin-left: 49px;
+  font-size: 0.8rem;
+  color: #666;
+  text-align: left;
+  margin-bottom: 6px;
+}
+
+.course-rating {
+  margin-left: 49px;
+  font-size: 1rem;
+  color: #ba0c0c;
+  text-align: left;
+  margin-top: 4px;
+}
+
+.course-price {
+  margin-left: 49px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #000000;
+  margin-top: 4px;
+  text-align: left;
+}
+.modal-main-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.modal-left-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.modal-texts {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.modal-author {
+  font-size: 0.9rem;
+  color: #777;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-button-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tooltip-button {
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 160px; /* ✅ Fixed width */
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .course-link {
+    flex: 0 0 22%;
+  }
+}
+@media (max-width: 992px) {
+  .course-link {
+    flex: 0 0 30%;
+  }
+}
+@media (max-width: 768px) {
+  .course-link {
+    flex: 0 0 45%;
+  }
+}
+@media (max-width: 480px) {
+  .course-link {
+    flex: 0 0 100%;
+  }
+  .course-thumbnail img {
+    width: 30vh;
+    height: 15vh;
+    margin-left: 15px;
+  }
+  .course-info {
+    padding: 8px 0 8px 15px;
+  }
+}

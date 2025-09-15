@@ -1,0 +1,53 @@
+stripe:
+  api:
+    key: ${STRIPE_API_KEY}
+
+server:
+  port: 9020
+
+spring:
+  cloud:
+    stream:
+      bindings:
+        sendCommunication-out-0:
+          destination: send-communication
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: "http://localhost:7080/realms/OnlineCourseRealm/protocol/openid-connect/certs"
+  application:
+    name: "paymentService"
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    url: jdbc:h2:mem:paymentdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+
+
+rabbitmq:
+  host: localhost
+  port: 5672
+  username: guest
+  password: guest
+  connection-timeout: 10s
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/

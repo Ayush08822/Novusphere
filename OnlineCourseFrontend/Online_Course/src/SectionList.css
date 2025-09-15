@@ -1,0 +1,71 @@
+.section-list {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.section-item {
+  width: 70vw;
+  margin-left: calc(-35vw + 50%);
+  padding: 0;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border-bottom: 1px solid #444;
+  box-sizing: border-box;
+  /* position relative is fine */
+  position: relative;
+}
+
+.section-header {
+  background-color: #b9b3b333;
+  color: black;
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: bold;
+  height: 56px; /* fixed height */
+  box-sizing: border-box;
+  user-select: none;
+  /* add this to prevent content shift on click */
+  flex-shrink: 0;
+}
+
+.arrow-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  transform-origin: center;
+}
+
+.arrow-icon.rotate {
+  transform: rotate(180deg);
+}
+
+.section-expand {
+  margin-top: 0;
+  display: flex;
+  gap: 12px;
+  padding: 16px 32px;
+  box-sizing: border-box;
+  /* Ensure it doesn't affect the header */
+}
+
+/* Button styles unchanged */
+.upload-btn {
+  background-color: transparent;
+  color: black;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.upload-btn:hover {
+  background-color: #5a5a5a;
+  color: white;
+}

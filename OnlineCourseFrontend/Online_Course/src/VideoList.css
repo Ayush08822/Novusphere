@@ -1,0 +1,42 @@
+/* Styles for the overall video list container */
+.video-list {
+  margin-top: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: white;
+}
+
+/* Styles for individual video items */
+.video-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0; /* Reduced vertical padding */
+  border-bottom: 1px dashed #e0e0e0;
+  cursor: pointer; /* Indicates it's clickable */
+  /* Removed background-color, transform, box-shadow for cleaner link-like hover */
+  transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out; /* Smooth transition for text */
+}
+
+/* Remove bottom border for the last item for a cleaner look */
+.video-item:last-child {
+  border-bottom: none;
+}
+
+/* Style for the video title text within the item */
+.video-item span {
+  flex-grow: 1;
+  font-size: 0.95em;
+  color: #555; /* Default text color */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+  text-decoration: none; /* Ensure no default underline */
+}
+
+/* Hover effect for video titles - now more like a link */
+.video-item:hover span {
+  color: #007bff; /* Change text color to a common link blue */
+}
