@@ -171,7 +171,6 @@ public class CourseService {
         if(course.isPresent()) {
             Course get_course = course.get();
             get_course.setRating(reviewDto.getRating());
-            get_course.setComment(reviewDto.getComment());
 
             courseRepo.save(get_course);
         } else {

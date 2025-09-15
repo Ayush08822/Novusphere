@@ -10,9 +10,10 @@ import { SectionData } from "../models/SectionData";
 import { VideoResponse } from "../models/VideoResponse";
 import { FileResponse } from "../models/FileResponse";
 import { AuthContext } from "react-oauth2-code-pkce";
+import { jwtDecode } from "jwt-decode"; // STEP 1: Import the decoder
 import "../css/MyLearning.css";
 
-// --- (Interfaces and StarRating component remain the same) ---
+// --- Interfaces & Helper Components ---
 interface ReviewData {
   id: number;
   rating: number;
@@ -29,12 +30,16 @@ interface SectionWithMedia extends SectionData {
   files: FileResponse[];
   isOpen?: boolean;
 }
+// NEW: Define the shape of the decoded user object locally
+interface AuthUser {
+  email: string;
+  name?: string;
+}
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
   const totalStars = 5;
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 !== 0;
   const emptyStars = totalStars - fullStars - (halfStar ? 1 : 0);
-
   return (
     <div className="star-rating">
       {[...Array(fullStars)].map((_, i) => (
@@ -64,9 +69,9 @@ const base64ToUrl = (base64Data: string, mimeType: string) => {
 
 export const MyLearning: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  // We only need the token from the context now
   const { token } = useContext(AuthContext);
 
-  // --- (All state variables remain the same) ---
   const [sections, setSections] = useState<SectionWithMedia[]>([]);
   const [activeTab, setActiveTab] = useState<
     "content" | "announcements" | "reviews"
@@ -79,8 +84,8 @@ export const MyLearning: React.FC = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReviewText, setNewReviewText] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(0);
+  const [hasUserReviewed, setHasUserReviewed] = useState(false);
 
-  // --- (useEffect for fetching sections remains the same) ---
   useEffect(() => {
     if (!token) return;
     const fetchSections = async () => {
@@ -152,7 +157,6 @@ export const MyLearning: React.FC = () => {
     fetchSections();
   }, [courseId, token]);
 
-  // STEP 1: The review fetching logic is extracted into a reusable function
   const fetchReviews = useCallback(async () => {
     if (!courseId || !token) return;
 
@@ -170,19 +174,29 @@ export const MyLearning: React.FC = () => {
       const data: ReviewsResponse = await response.json();
       setAverageRating(data.averageRating);
       setReviews(data.reviews);
+
+      // STEP 2: Decode the token here to get the user's email
+      const decodedUser: AuthUser = jwtDecode(token);
+
+      // STEP 3: Check if the decoded email is in the reviews list
+      if (decodedUser?.email) {
+        const userReview = data.reviews.find(
+          (review) => review.reviewerName === decodedUser.email
+        );
+        setHasUserReviewed(!!userReview);
+      }
     } catch (error) {
       console.error("Error fetching reviews:", error);
     } finally {
       setReviewsLoading(false);
     }
-  }, [courseId, token]); // Dependencies for the function itself
+  }, [courseId, token]);
 
-  // STEP 2: The useEffect now just calls the reusable function
   useEffect(() => {
     if (activeTab === "reviews") {
       fetchReviews();
     }
-  }, [activeTab, fetchReviews]); // Dependency array is cleaner
+  }, [activeTab, fetchReviews]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,7 +207,7 @@ export const MyLearning: React.FC = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8072/app/courses/api/reviews/submit-review/${courseId}`,
+        `http://localhost:8072/app/courses/api/reviews/submit-reviews/${courseId}`,
         {
           method: "POST",
           headers: {
@@ -211,13 +225,9 @@ export const MyLearning: React.FC = () => {
       if (!response.ok) {
         throw new Error("Failed to submit review.");
       }
-
-      // Reset form state
       setShowReviewForm(false);
       setNewReviewRating(0);
       setNewReviewText("");
-
-      // STEP 3: Instead of toggling the tab, directly call fetchReviews to refresh the data
       await fetchReviews();
     } catch (error) {
       console.error("Error submitting review:", error);
@@ -225,7 +235,6 @@ export const MyLearning: React.FC = () => {
     }
   };
 
-  // --- (Other functions and the final return JSX remain the same) ---
   const allVideos = useMemo(
     () => sections.flatMap((section) => section.videos),
     [sections]
@@ -385,55 +394,63 @@ export const MyLearning: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="review-actions">
-                  <button
-                    className="leave-review-btn"
-                    onClick={() => setShowReviewForm(!showReviewForm)}
-                  >
-                    {showReviewForm ? "Cancel" : "Leave a Review"}
-                  </button>
-                </div>
-
-                {showReviewForm && (
-                  <div className="review-form">
-                    <form onSubmit={handleReviewSubmit}>
-                      <h4>Your Review</h4>
-                      <div className="form-group rating-input">
-                        <label>Rating:</label>
-                        <div className="rating-selection">
-                          <select
-                            value={newReviewRating}
-                            onChange={(e) =>
-                              setNewReviewRating(Number(e.target.value))
-                            }
-                          >
-                            <option value="0" disabled>
-                              Select a rating
-                            </option>
-                            {ratingOptions.map((rating) => (
-                              <option key={rating} value={rating}>
-                                {rating.toFixed(1)} Stars
-                              </option>
-                            ))}
-                          </select>
-                          <StarRating rating={newReviewRating} />
-                        </div>
-                      </div>
-                      <div className="form-group">
-                        <label htmlFor="review-text">Comment:</label>
-                        <textarea
-                          id="review-text"
-                          rows={4}
-                          value={newReviewText}
-                          onChange={(e) => setNewReviewText(e.target.value)}
-                          placeholder="Tell us about your own personal experience taking this course."
-                        />
-                      </div>
-                      <button type="submit" className="submit-review-btn">
-                        Submit Review
-                      </button>
-                    </form>
+                {hasUserReviewed ? (
+                  <div className="user-reviewed-message">
+                    <p>✓ You've already reviewed this course. Thank you!</p>
                   </div>
+                ) : (
+                  <>
+                    <div className="review-actions">
+                      <button
+                        className="leave-review-btn"
+                        onClick={() => setShowReviewForm(!showReviewForm)}
+                      >
+                        {showReviewForm ? "Cancel" : "Leave a Review"}
+                      </button>
+                    </div>
+
+                    {showReviewForm && (
+                      <div className="review-form">
+                        <form onSubmit={handleReviewSubmit}>
+                          <h4>Your Review</h4>
+                          <div className="form-group rating-input">
+                            <label>Rating:</label>
+                            <div className="rating-selection">
+                              <select
+                                value={newReviewRating}
+                                onChange={(e) =>
+                                  setNewReviewRating(Number(e.target.value))
+                                }
+                              >
+                                <option value="0" disabled>
+                                  Select a rating
+                                </option>
+                                {ratingOptions.map((rating) => (
+                                  <option key={rating} value={rating}>
+                                    {rating.toFixed(1)} Stars
+                                  </option>
+                                ))}
+                              </select>
+                              <StarRating rating={newReviewRating} />
+                            </div>
+                          </div>
+                          <div className="form-group">
+                            <label htmlFor="review-text">Comment:</label>
+                            <textarea
+                              id="review-text"
+                              rows={4}
+                              value={newReviewText}
+                              onChange={(e) => setNewReviewText(e.target.value)}
+                              placeholder="Tell us about your own personal experience taking this course."
+                            />
+                          </div>
+                          <button type="submit" className="submit-review-btn">
+                            Submit Review
+                          </button>
+                        </form>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 <div className="reviews-list">

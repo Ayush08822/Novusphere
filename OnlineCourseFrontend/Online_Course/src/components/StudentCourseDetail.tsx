@@ -8,6 +8,44 @@ import "../StudentCourseDetail.css";
 import "../VideoList.css";
 import { AuthContext } from "react-oauth2-code-pkce";
 
+// --- Interfaces for Review Data ---
+interface ReviewData {
+  id: number;
+  rating: number;
+  comment: string;
+  reviewerName: string; // From backend's ReviewDetailDto
+  date: string;
+}
+
+interface ReviewsResponse {
+  averageRating: number;
+  reviews: ReviewData[];
+}
+
+// --- Reusable Star Rating Component ---
+const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
+  const totalStars = 5;
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 !== 0;
+  const emptyStars = totalStars - fullStars - (halfStar ? 1 : 0);
+
+  return (
+    <div className="star-rating-display">
+      {[...Array(fullStars)].map((_, i) => (
+        <span key={`full-${i}`} className="star-display full-star-display">
+          ★
+        </span>
+      ))}
+      {halfStar && <span className="star-display half-star-display">☆</span>}
+      {[...Array(emptyStars)].map((_, i) => (
+        <span key={`empty-${i}`} className="star-display empty-star-display">
+          ☆
+        </span>
+      ))}
+    </div>
+  );
+};
+
 export const StudentCourseDetail = () => {
   const { token } = useContext(AuthContext);
   const { id } = useParams<{ id: string }>();
@@ -28,6 +66,11 @@ export const StudentCourseDetail = () => {
     [sectionId: number]: number | null;
   }>({});
 
+  // --- State for Reviews ---
+  const [reviews, setReviews] = useState<ReviewData[]>([]);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [visibleReviews, setVisibleReviews] = useState<number>(3); // Initially show 3 reviews
+
   const handleVideoPlay = (sectionId: number, videoId: number) => {
     setPlayingVideoId((prev) => ({
       ...prev,
@@ -36,6 +79,7 @@ export const StudentCourseDetail = () => {
   };
 
   useEffect(() => {
+    if (!token || !id) return;
     fetch(`http://localhost:8072/app/courses/api/courses/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -53,10 +97,10 @@ export const StudentCourseDetail = () => {
         setError(err.message);
         setLoading(false);
       });
-  }, [id]);
+  }, [id, token]);
 
   useEffect(() => {
-    if (id) {
+    if (id && token) {
       fetch(`http://localhost:8072/app/courses/api/sections/course/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -75,9 +119,30 @@ export const StudentCourseDetail = () => {
         })
         .catch((err) => console.error("Section fetch error:", err));
     }
-  }, [id]);
+  }, [id, token]);
+
+  // --- useEffect to fetch reviews ---
+  useEffect(() => {
+    if (id && token) {
+      fetch(`http://localhost:8072/app/courses/api/reviews/fetch-reviews/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Failed to fetch reviews");
+          return res.json();
+        })
+        .then((data: ReviewsResponse) => {
+          setAverageRating(data.averageRating);
+          setReviews(data.reviews);
+        })
+        .catch((err) => console.error("Review fetch error:", err));
+    }
+  }, [id, token]);
 
   const fetchVideos = (sectionId: number) => {
+    if (!token) return;
     fetch(`http://localhost:8072/app/videos/api/video/${sectionId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -120,6 +185,7 @@ export const StudentCourseDetail = () => {
   };
 
   const fetchFiles = (sectionId: number) => {
+    if (!token) return;
     fetch(`http://localhost:8072/app/files/api/files/${sectionId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -420,10 +486,51 @@ export const StudentCourseDetail = () => {
         </button>
         <br />
         <br />
+
+        {/* --- Reviews & Ratings Section --- */}
         <h3>Reviews & Ratings</h3>
-        <p>
-          <strong>Rating:</strong> {course.rating.toFixed(1)} / 5
-        </p>
+        <div className="reviews-section">
+          <div className="overall-rating-display">
+            <div className="rating-value-display">
+              {averageRating.toFixed(1)}
+            </div>
+            <div className="rating-summary-display">
+              <StarRating rating={averageRating} />
+              <span>Overall Rating</span>
+            </div>
+          </div>
+
+          <div className="review-list">
+            {reviews.slice(0, visibleReviews).map((review) => (
+              <div key={review.id} className="review-item-display">
+                <div className="review-author-initial">
+                  {review.reviewerName
+                    ? review.reviewerName.charAt(0).toUpperCase()
+                    : "A"}
+                </div>
+                <div className="review-content-display">
+                  <div className="review-header-display">
+                    <strong>{review.reviewerName || "Anonymous"}</strong>
+                    <StarRating rating={review.rating} />
+                  </div>
+                  <p className="review-comment-display">{review.comment}</p>
+                  <span className="review-date-display">
+                    {new Date(review.date).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {reviews.length > visibleReviews && (
+            <button
+              className="show-more-btn"
+              onClick={() => setVisibleReviews(reviews.length)}
+            >
+              Show More Reviews
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

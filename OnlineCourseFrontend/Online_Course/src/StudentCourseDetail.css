@@ -133,3 +133,132 @@
 .toggle-button.rotate svg {
   transform: rotate(180deg);
 }
+
+.reviews-section {
+  margin-top: 15px;
+  margin-left: -40px;
+}
+
+.overall-rating-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 25px;
+}
+
+.rating-value-display {
+  font-size: 42px;
+  font-weight: bold;
+  color: #4a00e0;
+}
+
+.rating-summary-display span {
+  display: block;
+  font-weight: 500;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* Star Rating Display */
+.star-rating-display {
+  font-size: 20px;
+}
+
+.star-display {
+  color: #e0e0e0;
+}
+
+.full-star-display {
+  color: #ffc107;
+}
+
+.half-star-display {
+  position: relative;
+}
+.half-star-display::before {
+  content: "★";
+  position: absolute;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
+  color: #ffc107;
+}
+
+/* Review List */
+.review-list {
+  margin-top: 20px;
+}
+
+.review-item-display {
+  display: flex;
+  gap: 15px;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 20px 0;
+}
+
+.review-item-display:last-child {
+  border-bottom: none;
+}
+
+.review-author-initial {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #6366f1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.review-content-display {
+  flex-grow: 1;
+}
+
+.review-header-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.review-header-display strong {
+  font-size: 16px;
+}
+
+.review-comment-display {
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+  color: #333;
+}
+
+.review-date-display {
+  font-size: 12px;
+  color: #888;
+}
+
+.show-more-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a00e0;
+  background-color: transparent;
+  border: 2px solid #6366f1;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: all 0.2s ease-in-out;
+}
+
+.show-more-btn:hover {
+  background-color: #6366f1;
+  color: white;
+}

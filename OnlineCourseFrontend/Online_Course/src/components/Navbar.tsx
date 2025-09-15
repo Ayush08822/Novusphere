@@ -84,7 +84,7 @@ export const Navbar = () => {
     <nav className="navbar">
       {/* Left Side */}
       <div className="navbar-left">
-        <div className="navbar-logo">CourseHub</div>
+        <div className="navbar-logo">Novusphere</div>
 
         <div className="navbar-explore-search">
           <div className="explore-hover-wrapper">

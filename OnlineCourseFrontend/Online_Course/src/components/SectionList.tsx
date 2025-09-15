@@ -1,4 +1,4 @@
-import { useContext, useState, type ChangeEvent } from "react";
+import { useContext, useEffect, useState, type ChangeEvent } from "react";
 import { SectionData } from "../models/SectionData";
 import { VideoResponse } from "../models/VideoResponse";
 import { FileResponse } from "../models/FileResponse";
@@ -6,7 +6,11 @@ import "../SectionList.css";
 import "../VideoList.css";
 import { AuthContext } from "react-oauth2-code-pkce";
 
-export const SectionList = ({ sections }: { sections: SectionData[] }) => {
+// UPDATED: Component now accepts courseId as a prop
+export const SectionList = ({ courseId }: { courseId: string | number }) => {
+  // NEW: State to hold the sections fetched from the API
+  const [sections, setSections] = useState<SectionData[]>([]);
+
   const [expandedSections, setExpandedSections] = useState<{
     [key: number]: boolean;
   }>({});
@@ -27,6 +31,30 @@ export const SectionList = ({ sections }: { sections: SectionData[] }) => {
   const [title, setTitle] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const { token } = useContext(AuthContext);
+
+  // NEW: useEffect to fetch sections based on courseId
+  useEffect(() => {
+    if (courseId && token) {
+      fetch(
+        `http://localhost:8072/app/courses/api/sections/course/${courseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Failed to fetch sections for the course.");
+          }
+          return response.json();
+        })
+        .then((data: SectionData[]) => {
+          setSections(data);
+        })
+        .catch((error) => console.error("Error fetching sections:", error));
+    }
+  }, [courseId, token]);
 
   const toggleExpand = async (id: number): Promise<void> => {
     const isCurrentlyExpanded = expandedSections[id];

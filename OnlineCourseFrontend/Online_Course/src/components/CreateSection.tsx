@@ -1,7 +1,6 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import "../Section.css";
 import { SectionList } from "./SectionList";
-import { SectionData } from "../models/SectionData";
 import { AuthContext } from "react-oauth2-code-pkce";
 
 export const CreateSection = ({
@@ -11,32 +10,15 @@ export const CreateSection = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sectionName, setSectionName] = useState("");
-  const [sections, setSections] = useState<SectionData[]>([]);
+  // NEW: A state to trigger a refresh in the child component
+  const [refreshKey, setRefreshKey] = useState(0);
   const { token } = useContext(AuthContext);
 
-  const fetchSections = async () => {
-    try {
-      const res = await fetch("http://localhost:8072/app/courses/api/sections/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      const sectionObjs = data.map(
-        (s: any) => new SectionData(s.id, s.name, s.courseId)
-      );
-      setSections(sectionObjs);
-    } catch (err) {
-      console.error("Error fetching sections:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchSections();
-  }, []);
+  // REMOVED: The sections state and fetchSections logic are no longer needed here.
+  // SectionList now handles its own data fetching.
 
   const handleCreate = async () => {
-    if (!sectionName.trim()) return;
+    if (!sectionName.trim() || !courseId) return;
 
     const payload = {
       name: sectionName,
@@ -57,9 +39,8 @@ export const CreateSection = ({
       );
 
       if (res.ok) {
-        const data = await res.json();
-        const newSection = new SectionData(data.id, data.name, data.courseId);
-        setSections((prev) => [...prev, newSection]); // ✅ Add new section immediately
+        // Instead of manually adding to a local list, we trigger a refresh.
+        setRefreshKey((prevKey) => prevKey + 1);
         setSectionName("");
         setIsModalOpen(false);
       } else {
@@ -104,9 +85,9 @@ export const CreateSection = ({
         </div>
       )}
 
-      {/* ⬇️ Add spacing and show sections list */}
       <div style={{ marginTop: "32px" }}>
-        <SectionList sections={sections} />
+        {/* UPDATED: Pass courseId and the new key prop instead of sections */}
+        {courseId && <SectionList key={refreshKey} courseId={courseId} />}
       </div>
     </div>
   );

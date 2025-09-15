@@ -176,7 +176,7 @@ export const TopRatedCourses = () => {
                       className="tooltip-button"
                       onClick={(e) => {
                         e.preventDefault();
-                        window.location.href = `/student_course/${course.id}`;
+                        window.location.href = `/mylearning/${course.id}`;
                       }}
                     >
                       Go to Course
