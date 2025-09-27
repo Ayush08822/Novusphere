@@ -10,8 +10,10 @@ import { SectionData } from "../models/SectionData";
 import { VideoResponse } from "../models/VideoResponse";
 import { FileResponse } from "../models/FileResponse";
 import { AuthContext } from "react-oauth2-code-pkce";
-import { jwtDecode } from "jwt-decode"; // STEP 1: Import the decoder
+import { jwtDecode } from "jwt-decode";
 import "../css/MyLearning.css";
+import { StarRating } from "../Utils/StarRating";
+import { AnnouncementData } from "../models/AnnouncementData";
 
 // --- Interfaces & Helper Components ---
 interface ReviewData {
@@ -30,32 +32,35 @@ interface SectionWithMedia extends SectionData {
   files: FileResponse[];
   isOpen?: boolean;
 }
-// NEW: Define the shape of the decoded user object locally
 interface AuthUser {
   email: string;
   name?: string;
 }
-const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
-  const totalStars = 5;
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 !== 0;
-  const emptyStars = totalStars - fullStars - (halfStar ? 1 : 0);
-  return (
-    <div className="star-rating">
-      {[...Array(fullStars)].map((_, i) => (
-        <span key={`full-${i}`} className="star full-star">
-          ★
-        </span>
-      ))}
-      {halfStar && <span className="star half-star">☆</span>}
-      {[...Array(emptyStars)].map((_, i) => (
-        <span key={`empty-${i}`} className="star empty-star">
-          ☆
-        </span>
-      ))}
-    </div>
-  );
+
+// Helper function to format date into "time ago" format
+const formatTimeAgo = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  let interval = seconds / 31536000;
+  if (interval > 1) return Math.floor(interval) + " years ago";
+
+  interval = seconds / 2592000;
+  if (interval > 1) return Math.floor(interval) + " months ago";
+
+  interval = seconds / 86400;
+  if (interval > 1) return Math.floor(interval) + " days ago";
+
+  interval = seconds / 3600;
+  if (interval > 1) return Math.floor(interval) + " hours ago";
+
+  interval = seconds / 60;
+  if (interval > 1) return Math.floor(interval) + " minutes ago";
+
+  return Math.floor(seconds) + " seconds ago";
 };
+
 const base64ToUrl = (base64Data: string, mimeType: string) => {
   const byteCharacters = atob(base64Data);
   const byteNumbers = new Array(byteCharacters.length);
@@ -69,7 +74,6 @@ const base64ToUrl = (base64Data: string, mimeType: string) => {
 
 export const MyLearning: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
-  // We only need the token from the context now
   const { token } = useContext(AuthContext);
 
   const [sections, setSections] = useState<SectionWithMedia[]>([]);
@@ -85,6 +89,10 @@ export const MyLearning: React.FC = () => {
   const [newReviewText, setNewReviewText] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(0);
   const [hasUserReviewed, setHasUserReviewed] = useState(false);
+
+  // ADDED BACK: State for announcements
+  const [announcements, setAnnouncements] = useState<AnnouncementData[]>([]);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -159,7 +167,6 @@ export const MyLearning: React.FC = () => {
 
   const fetchReviews = useCallback(async () => {
     if (!courseId || !token) return;
-
     setReviewsLoading(true);
     try {
       const response = await fetch(
@@ -168,17 +175,11 @@ export const MyLearning: React.FC = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch reviews");
-      }
+      if (!response.ok) throw new Error("Failed to fetch reviews");
       const data: ReviewsResponse = await response.json();
       setAverageRating(data.averageRating);
       setReviews(data.reviews);
-
-      // STEP 2: Decode the token here to get the user's email
       const decodedUser: AuthUser = jwtDecode(token);
-
-      // STEP 3: Check if the decoded email is in the reviews list
       if (decodedUser?.email) {
         const userReview = data.reviews.find(
           (review) => review.reviewerName === decodedUser.email
@@ -192,11 +193,50 @@ export const MyLearning: React.FC = () => {
     }
   }, [courseId, token]);
 
+  // ADDED BACK: A function to fetch announcements
+  const fetchAnnouncements = useCallback(async () => {
+    if (!courseId || !token) return;
+    setAnnouncementsLoading(true);
+    try {
+      const response = await fetch(
+        
+        `http://localhost:8072/app/courses/api/announce/get-announcements/${courseId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch announcements");
+      }
+      const data = await response.json();
+      const announcementObjects = data.map(
+        (a: any) =>
+          new AnnouncementData(
+            a.id,
+            a.title,
+            a.content,
+            a.announcerEmail,
+            a.createdAt
+          )
+      );
+      setAnnouncements(announcementObjects);
+      console.log(announcementObjects.createdAt);
+    } catch (error) {
+      console.error("Error fetching announcements:", error);
+    } finally {
+      setAnnouncementsLoading(false);
+    }
+  }, [courseId, token]);
+
+  // ADDED BACK: The useEffect now also handles the announcements tab
   useEffect(() => {
     if (activeTab === "reviews") {
       fetchReviews();
     }
-  }, [activeTab, fetchReviews]);
+    if (activeTab === "announcements") {
+      fetchAnnouncements();
+    }
+  }, [activeTab, fetchReviews, fetchAnnouncements]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,10 +244,9 @@ export const MyLearning: React.FC = () => {
       alert("Please provide a rating and a comment.");
       return;
     }
-
     try {
       const response = await fetch(
-        `http://localhost:8072/app/courses/api/reviews/submit-reviews/${courseId}`,
+        `http://localhost:8072/app.courses/api/reviews/submit-review/${courseId}`,
         {
           method: "POST",
           headers: {
@@ -221,10 +260,7 @@ export const MyLearning: React.FC = () => {
           }),
         }
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to submit review.");
-      }
+      if (!response.ok) throw new Error("Failed to submit review.");
       setShowReviewForm(false);
       setNewReviewRating(0);
       setNewReviewText("");
@@ -254,6 +290,7 @@ export const MyLearning: React.FC = () => {
     );
   };
   const ratingOptions = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5];
+
   if (loading)
     return (
       <div className="spinner-container">
@@ -371,9 +408,42 @@ export const MyLearning: React.FC = () => {
           </div>
         )}
 
+        {/* ADDED BACK: The full announcements tab logic */}
         {activeTab === "announcements" && (
-          <div className="announcements">
-            <p>No announcements yet.</p>
+          <div className="announcements-container">
+            {announcementsLoading ? (
+              <div className="spinner-container-small">
+                <div className="spinner"></div>
+              </div>
+            ) : announcements.length > 0 ? (
+              <div className="announcements-list">
+                {announcements.map((ann) => (
+                  <div key={ann.id} className="announcement-item">
+                    <div className="announcement-header">
+                      <div className="announcement-author">
+                        <div className="author-initial">
+                          {ann.announcerEmail
+                            ? ann.announcerEmail.charAt(0).toUpperCase()
+                            : "A"}
+                        </div>
+                        <span>{ann.announcerEmail || "Anonymous"}</span>
+                      </div>
+                      <div className="announcement-date">
+                        {formatTimeAgo(ann.createdAt)}
+                      </div>
+                    </div>
+                    <div className="announcement-body">
+                      <h3>{ann.title}</h3>
+                      <p>{ann.content}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="announcements">
+                <p>No announcements yet.</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -458,11 +528,15 @@ export const MyLearning: React.FC = () => {
                     reviews.map((review) => (
                       <div key={review.id} className="review-item">
                         <div className="review-author">
-                          {review.reviewerName.charAt(0)}
+                          {review.reviewerName
+                            ? review.reviewerName.charAt(0).toUpperCase()
+                            : "A"}
                         </div>
                         <div className="review-content">
                           <div className="review-header">
-                            <strong>{review.reviewerName}</strong>
+                            <strong>
+                              {review.reviewerName || "Anonymous"}
+                            </strong>
                             <span>
                               {new Date(review.date).toLocaleDateString()}
                             </span>

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Cart } from "../models/Cart";
-import "../Cart.css";
+import "../css/Cart.css";
 import { AuthContext } from "react-oauth2-code-pkce";
 import { useNavigate } from "react-router-dom";
 

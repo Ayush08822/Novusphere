@@ -38,6 +38,16 @@ body {
   display: block;
 }
 
+.no-video {
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  background-color: #000;
+}
+
 /* Main content */
 .course-detail-container {
   max-width: 1000px;
@@ -67,7 +77,7 @@ body {
 }
 
 .tab-btn.active {
-  background: #007bff;
+  background: #6366f1;
   color: white;
   font-weight: 700;
 }
@@ -175,7 +185,7 @@ body {
   background-color: #f8f9fa;
   padding: 20px;
   border-radius: 8px;
-  margin-bottom: 25px;
+  flex-shrink: 0;
 }
 
 .rating-value {
@@ -191,38 +201,6 @@ body {
   margin-top: 4px;
 }
 
-/* Star Rating Display */
-.star-rating {
-  font-size: 20px;
-}
-
-.star {
-  color: #e0e0e0; /* Default to empty star color */
-}
-
-.full-star {
-  color: #ffc107;
-}
-
-/* CORRECTED: The half-star should not have a color itself, only its pseudo-element */
-.half-star {
-  position: relative;
-}
-
-/* CORRECTED: The ::before pseudo-element creates the yellow half-fill */
-.half-star::before {
-  content: "★";
-  position: absolute;
-  left: 0;
-  width: 50%;
-  overflow: hidden;
-  color: #ffc107;
-}
-
-.empty-star {
-  color: #e0e0e0;
-}
-
 /* Review Actions & Form */
 .review-actions {
   margin-bottom: 20px;
@@ -230,7 +208,7 @@ body {
 
 .leave-review-btn,
 .submit-review-btn {
-  background-color: #007bff;
+  background-color: #6366f1;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -242,7 +220,7 @@ body {
 
 .leave-review-btn:hover,
 .submit-review-btn:hover {
-  background-color: #0056b3;
+  background-color: #4f46e5;
 }
 
 .review-form {
@@ -316,7 +294,7 @@ body {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: #007bff;
+  background-color: #6366f1;
   color: white;
   display: flex;
   align-items: center;
@@ -357,7 +335,92 @@ body {
   color: #333;
 }
 
-/* Small Spinner for Reviews Tab */
+/* User Reviewed Message */
+.user-reviewed-message {
+  background-color: #eef7ff;
+  border: 1px solid #cce5ff;
+  color: #004085;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* === ANNOUNCEMENTS TAB STYLES === */
+
+.announcements-container {
+  padding: 10px;
+}
+
+.announcements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.announcement-item {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-left: 5px solid #6366f1; /* Accent color */
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.announcement-item:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.announcement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.announcement-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #333;
+}
+
+.author-initial {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #6366f1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.announcement-date {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.announcement-body h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.25rem;
+  color: #2c3e50;
+}
+
+.announcement-body p {
+  margin: 0;
+  line-height: 1.6;
+  color: #555;
+  white-space: pre-wrap;
+}
+
+/* Small Spinner for Reviews & Announcements Tab */
 .spinner-container-small {
   display: flex;
   justify-content: center;
