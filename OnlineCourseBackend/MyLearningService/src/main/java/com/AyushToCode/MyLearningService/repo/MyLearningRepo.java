@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface MyLearningRepo extends JpaRepository<MyLearning, Long> {
     List<MyLearning> findByEmail(String email);
+
+    List<MyLearning> findByCourseId(Long courseId);
 }

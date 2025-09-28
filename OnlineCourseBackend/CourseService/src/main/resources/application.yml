@@ -9,6 +9,10 @@ spring:
         updateStudentEnrollment-in-0:
           destination: send-communication
           group: ${spring.application.name}
+        sendEmail-out-0:
+          destination: email-communication
+          group: ${spring.application.name}
+
   security:
     oauth2:
       resourceserver:

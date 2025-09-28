@@ -6,22 +6,45 @@ import React, {
   useState,
 } from "react";
 import { useParams } from "react-router-dom";
-import { SectionData } from "../models/SectionData";
-import { VideoResponse } from "../models/VideoResponse";
-import { FileResponse } from "../models/FileResponse";
-import { AuthContext } from "react-oauth2-code-pkce";
 import { jwtDecode } from "jwt-decode";
-import "../css/MyLearning.css";
-import { StarRating } from "../Utils/StarRating";
-import { AnnouncementData } from "../models/AnnouncementData";
+import { AuthContext } from "react-oauth2-code-pkce";
 
-// --- Interfaces & Helper Components ---
+// Import Child Components
+import { Announcements } from "./CourseAnnouncements";
+import { Reviews } from "./CourseReviews";
+
+// Import CSS and any shared utilities
+import "../css/MyLearning.css";
+// Define local interfaces needed for state and data fetching
 interface ReviewData {
   id: number;
   rating: number;
   comment: string;
   reviewerName: string;
   date: string;
+}
+interface AnnouncementData {
+  id: number;
+  announcementTitle: string;
+  announcementDescription: string;
+  email: string;
+  createdAt: string;
+}
+interface VideoResponse {
+  id: number;
+  title: string;
+  data: string;
+  type: string;
+}
+interface FileResponse {
+  id: number;
+  title: string;
+  data: string;
+  contentType: string;
+}
+interface SectionData {
+  id: number;
+  name: string;
 }
 interface ReviewsResponse {
   averageRating: number;
@@ -37,30 +60,7 @@ interface AuthUser {
   name?: string;
 }
 
-// Helper function to format date into "time ago" format
-const formatTimeAgo = (dateString: string): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + " years ago";
-
-  interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + " months ago";
-
-  interval = seconds / 86400;
-  if (interval > 1) return Math.floor(interval) + " days ago";
-
-  interval = seconds / 3600;
-  if (interval > 1) return Math.floor(interval) + " hours ago";
-
-  interval = seconds / 60;
-  if (interval > 1) return Math.floor(interval) + " minutes ago";
-
-  return Math.floor(seconds) + " seconds ago";
-};
-
+// This helper function is used to create playable video URLs from base64 data
 const base64ToUrl = (base64Data: string, mimeType: string) => {
   const byteCharacters = atob(base64Data);
   const byteNumbers = new Array(byteCharacters.length);
@@ -89,8 +89,6 @@ export const MyLearning: React.FC = () => {
   const [newReviewText, setNewReviewText] = useState("");
   const [newReviewRating, setNewReviewRating] = useState(0);
   const [hasUserReviewed, setHasUserReviewed] = useState(false);
-
-  // ADDED BACK: State for announcements
   const [announcements, setAnnouncements] = useState<AnnouncementData[]>([]);
   const [announcementsLoading, setAnnouncementsLoading] = useState(false);
 
@@ -100,12 +98,7 @@ export const MyLearning: React.FC = () => {
       try {
         const sectionResponse = await fetch(
           `http://localhost:8072/app/courses/api/sections/course/${courseId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!sectionResponse.ok) throw new Error("Failed to fetch sections");
         const sectionData: SectionData[] = await sectionResponse.json();
@@ -123,29 +116,18 @@ export const MyLearning: React.FC = () => {
             return {
               ...section,
               isOpen: false,
-              videos: videoResponse.map(
-                (v: any) =>
-                  new VideoResponse(
-                    v.id,
-                    v.title,
-                    base64ToUrl(v.data, v.type),
-                    v.type
-                  )
-              ),
-              files: fileResponse.map((f: any) => {
-                const mimeType = f.contentType || "";
-                const extension = mimeType.split("/")[1] || "";
-                const filename =
-                  extension && !f.title.endsWith(`.${extension}`)
-                    ? `${f.title}.${extension}`
-                    : f.title;
-                return new FileResponse(
-                  f.id,
-                  filename,
-                  base64ToUrl(f.data, mimeType || "application/octet-stream"),
-                  mimeType
-                );
-              }),
+              videos: videoResponse.map((v: any) => ({
+                id: v.id,
+                title: v.title,
+                data: base64ToUrl(v.data, v.type),
+                type: v.type,
+              })),
+              files: fileResponse.map((f: any) => ({
+                id: f.id,
+                title: f.title,
+                data: base64ToUrl(f.data, f.contentType),
+                contentType: f.contentType,
+              })),
             };
           })
         );
@@ -171,9 +153,7 @@ export const MyLearning: React.FC = () => {
     try {
       const response = await fetch(
         `http://localhost:8072/app/courses/api/reviews/fetch-reviews/${courseId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!response.ok) throw new Error("Failed to fetch reviews");
       const data: ReviewsResponse = await response.json();
@@ -193,34 +173,17 @@ export const MyLearning: React.FC = () => {
     }
   }, [courseId, token]);
 
-  // ADDED BACK: A function to fetch announcements
   const fetchAnnouncements = useCallback(async () => {
     if (!courseId || !token) return;
     setAnnouncementsLoading(true);
     try {
       const response = await fetch(
-        
         `http://localhost:8072/app/courses/api/announce/get-announcements/${courseId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch announcements");
-      }
+      if (!response.ok) throw new Error("Failed to fetch announcements");
       const data = await response.json();
-      const announcementObjects = data.map(
-        (a: any) =>
-          new AnnouncementData(
-            a.id,
-            a.title,
-            a.content,
-            a.announcerEmail,
-            a.createdAt
-          )
-      );
-      setAnnouncements(announcementObjects);
-      console.log(announcementObjects.createdAt);
+      setAnnouncements(data);
     } catch (error) {
       console.error("Error fetching announcements:", error);
     } finally {
@@ -228,14 +191,9 @@ export const MyLearning: React.FC = () => {
     }
   }, [courseId, token]);
 
-  // ADDED BACK: The useEffect now also handles the announcements tab
   useEffect(() => {
-    if (activeTab === "reviews") {
-      fetchReviews();
-    }
-    if (activeTab === "announcements") {
-      fetchAnnouncements();
-    }
+    if (activeTab === "reviews") fetchReviews();
+    if (activeTab === "announcements") fetchAnnouncements();
   }, [activeTab, fetchReviews, fetchAnnouncements]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -245,8 +203,8 @@ export const MyLearning: React.FC = () => {
       return;
     }
     try {
-      const response = await fetch(
-        `http://localhost:8072/app.courses/api/reviews/submit-review/${courseId}`,
+      await fetch(
+        `http://localhost:8072/app/courses/api/reviews/submit-review/${courseId}`,
         {
           method: "POST",
           headers: {
@@ -260,14 +218,12 @@ export const MyLearning: React.FC = () => {
           }),
         }
       );
-      if (!response.ok) throw new Error("Failed to submit review.");
       setShowReviewForm(false);
       setNewReviewRating(0);
       setNewReviewText("");
       await fetchReviews();
     } catch (error) {
       console.error("Error submitting review:", error);
-      alert("There was an error submitting your review.");
     }
   };
 
@@ -275,15 +231,16 @@ export const MyLearning: React.FC = () => {
     () => sections.flatMap((section) => section.videos),
     [sections]
   );
+
   const handleVideoEnd = () => {
     const currentIndex = allVideos.findIndex(
       (video) => video.data === selectedVideo
     );
     if (currentIndex !== -1 && currentIndex < allVideos.length - 1) {
-      const nextVideo = allVideos[currentIndex + 1];
-      setSelectedVideo(nextVideo.data);
+      setSelectedVideo(allVideos[currentIndex + 1].data);
     }
   };
+
   const toggleSection = (id: number) => {
     setSections((prev) =>
       prev.map((sec) => (sec.id === id ? { ...sec, isOpen: !sec.isOpen } : sec))
@@ -291,12 +248,13 @@ export const MyLearning: React.FC = () => {
   };
   const ratingOptions = [5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1, 0.5];
 
-  if (loading)
+  if (loading) {
     return (
       <div className="spinner-container">
         <div className="spinner"></div>
       </div>
     );
+  }
 
   return (
     <div className="course-detail-container">
@@ -354,52 +312,40 @@ export const MyLearning: React.FC = () => {
                 {section.isOpen && (
                   <div className="section-body">
                     <ul className="video-list">
-                      {section.videos.length > 0 ? (
-                        section.videos.map((video) => (
-                          <li
-                            key={video.id}
-                            className="video-item"
-                            onClick={() => setSelectedVideo(video.data)}
+                      {section.videos.map((video) => (
+                        <li
+                          key={video.id}
+                          className="video-item"
+                          onClick={() => setSelectedVideo(video.data)}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="video-logo"
                           >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="20"
-                              height="20"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              viewBox="0 0 24 24"
-                              className="video-logo"
-                            >
-                              <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1" />
-                              <path d="M12 20v-3" />
-                              <path d="M8 20h8" />
-                              <polygon points="10 8 16 12 10 16 10 8" />
-                            </svg>
-                            <span className="video-title">{video.title}</span>
-                          </li>
-                        ))
-                      ) : (
-                        <li className="empty-item">
-                          No videos in this section
+                            <polygon points="10 8 16 12 10 16 10 8" />
+                            <path d="M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1" />
+                          </svg>
+                          <span className="video-title">{video.title}</span>
                         </li>
-                      )}
+                      ))}
                     </ul>
                     <ul className="file-list">
-                      {section.files.length > 0 ? (
-                        section.files.map((file) => (
-                          <li key={file.id} className="file-item">
-                            📄{" "}
-                            <a href={file.data} download={file.title}>
-                              {file.title}
-                            </a>
-                          </li>
-                        ))
-                      ) : (
-                        <li className="empty-item">No files in this section</li>
-                      )}
+                      {section.files.map((file) => (
+                        <li key={file.id} className="file-item">
+                          📄{" "}
+                          <a href={file.data} download={file.title}>
+                            {file.title}
+                          </a>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}
@@ -408,151 +354,28 @@ export const MyLearning: React.FC = () => {
           </div>
         )}
 
-        {/* ADDED BACK: The full announcements tab logic */}
         {activeTab === "announcements" && (
-          <div className="announcements-container">
-            {announcementsLoading ? (
-              <div className="spinner-container-small">
-                <div className="spinner"></div>
-              </div>
-            ) : announcements.length > 0 ? (
-              <div className="announcements-list">
-                {announcements.map((ann) => (
-                  <div key={ann.id} className="announcement-item">
-                    <div className="announcement-header">
-                      <div className="announcement-author">
-                        <div className="author-initial">
-                          {ann.announcerEmail
-                            ? ann.announcerEmail.charAt(0).toUpperCase()
-                            : "A"}
-                        </div>
-                        <span>{ann.announcerEmail || "Anonymous"}</span>
-                      </div>
-                      <div className="announcement-date">
-                        {formatTimeAgo(ann.createdAt)}
-                      </div>
-                    </div>
-                    <div className="announcement-body">
-                      <h3>{ann.title}</h3>
-                      <p>{ann.content}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="announcements">
-                <p>No announcements yet.</p>
-              </div>
-            )}
-          </div>
+          <Announcements
+            announcements={announcements}
+            announcementsLoading={announcementsLoading}
+          />
         )}
 
         {activeTab === "reviews" && (
-          <div className="reviews-container">
-            {reviewsLoading ? (
-              <div className="spinner-container-small">
-                <div className="spinner"></div>
-              </div>
-            ) : (
-              <>
-                <h2>Student Feedback</h2>
-                <div className="overall-rating">
-                  <div className="rating-value">{averageRating.toFixed(1)}</div>
-                  <div className="rating-summary">
-                    <StarRating rating={averageRating} />
-                    <span>Course Rating</span>
-                  </div>
-                </div>
-
-                {hasUserReviewed ? (
-                  <div className="user-reviewed-message">
-                    <p>✓ You've already reviewed this course. Thank you!</p>
-                  </div>
-                ) : (
-                  <>
-                    <div className="review-actions">
-                      <button
-                        className="leave-review-btn"
-                        onClick={() => setShowReviewForm(!showReviewForm)}
-                      >
-                        {showReviewForm ? "Cancel" : "Leave a Review"}
-                      </button>
-                    </div>
-
-                    {showReviewForm && (
-                      <div className="review-form">
-                        <form onSubmit={handleReviewSubmit}>
-                          <h4>Your Review</h4>
-                          <div className="form-group rating-input">
-                            <label>Rating:</label>
-                            <div className="rating-selection">
-                              <select
-                                value={newReviewRating}
-                                onChange={(e) =>
-                                  setNewReviewRating(Number(e.target.value))
-                                }
-                              >
-                                <option value="0" disabled>
-                                  Select a rating
-                                </option>
-                                {ratingOptions.map((rating) => (
-                                  <option key={rating} value={rating}>
-                                    {rating.toFixed(1)} Stars
-                                  </option>
-                                ))}
-                              </select>
-                              <StarRating rating={newReviewRating} />
-                            </div>
-                          </div>
-                          <div className="form-group">
-                            <label htmlFor="review-text">Comment:</label>
-                            <textarea
-                              id="review-text"
-                              rows={4}
-                              value={newReviewText}
-                              onChange={(e) => setNewReviewText(e.target.value)}
-                              placeholder="Tell us about your own personal experience taking this course."
-                            />
-                          </div>
-                          <button type="submit" className="submit-review-btn">
-                            Submit Review
-                          </button>
-                        </form>
-                      </div>
-                    )}
-                  </>
-                )}
-
-                <div className="reviews-list">
-                  {reviews.length > 0 ? (
-                    reviews.map((review) => (
-                      <div key={review.id} className="review-item">
-                        <div className="review-author">
-                          {review.reviewerName
-                            ? review.reviewerName.charAt(0).toUpperCase()
-                            : "A"}
-                        </div>
-                        <div className="review-content">
-                          <div className="review-header">
-                            <strong>
-                              {review.reviewerName || "Anonymous"}
-                            </strong>
-                            <span>
-                              {new Date(review.date).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <StarRating rating={review.rating} />
-                          <p>{review.comment}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p>Be the first to review this course!</p>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+          <Reviews
+            reviewsLoading={reviewsLoading}
+            averageRating={averageRating}
+            hasUserReviewed={hasUserReviewed}
+            reviews={reviews}
+            showReviewForm={showReviewForm}
+            setShowReviewForm={setShowReviewForm}
+            handleReviewSubmit={handleReviewSubmit}
+            newReviewRating={newReviewRating}
+            setNewReviewRating={setNewReviewRating}
+            newReviewText={newReviewText}
+            setNewReviewText={setNewReviewText}
+            ratingOptions={ratingOptions}
+          />
         )}
       </div>
     </div>
