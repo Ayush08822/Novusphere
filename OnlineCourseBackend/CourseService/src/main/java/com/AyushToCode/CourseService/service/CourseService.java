@@ -1,9 +1,6 @@
 package com.AyushToCode.CourseService.service;
 
-import com.AyushToCode.CourseService.DTO.CourseDTO;
-import com.AyushToCode.CourseService.DTO.CourseResponseDTO;
-import com.AyushToCode.CourseService.DTO.IncrementOfStudentEnrollmentDTO;
-import com.AyushToCode.CourseService.DTO.ReviewDto;
+import com.AyushToCode.CourseService.DTO.*;
 import com.AyushToCode.CourseService.entity.Course;
 import com.AyushToCode.CourseService.repo.CourseRepo;
 import lombok.AllArgsConstructor;
@@ -176,5 +173,12 @@ public class CourseService {
         } else {
             throw new Exception("No available course.");
         }
+    }
+
+    public RatingResponseDTO getAverageCourseRating(Long courseId) {
+        Course course = courseRepo.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found for given id " + " " + courseId));
+        RatingResponseDTO ratingResponseDTO = new RatingResponseDTO();
+        ratingResponseDTO.setAverageRating(course.getRating());
+        return  ratingResponseDTO;
     }
 }

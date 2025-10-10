@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { CourseFormData } from "../models/CourseFormData";
 import { SectionData } from "../models/SectionData";
@@ -22,28 +22,66 @@ interface ReviewsResponse {
   reviews: ReviewData[];
 }
 
-// --- Reusable Star Rating Component ---
+// --- Reusable Star Rating Component with SVGs ---
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
   const totalStars = 5;
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 !== 0;
-  const emptyStars = totalStars - fullStars - (halfStar ? 1 : 0);
 
-  return (
-    <div className="star-rating-display">
-      {[...Array(fullStars)].map((_, i) => (
-        <span key={`full-${i}`} className="star-display full-star-display">
-          ★
-        </span>
-      ))}
-      {halfStar && <span className="star-display half-star-display">☆</span>}
-      {[...Array(emptyStars)].map((_, i) => (
-        <span key={`empty-${i}`} className="star-display empty-star-display">
-          ☆
-        </span>
-      ))}
-    </div>
-  );
+  const stars = Array.from({ length: totalStars }, (_, index) => {
+    const starValue = index + 1;
+    if (rating >= starValue) {
+      // Full Star SVG
+      return (
+        <svg
+          key={`full-${index}`}
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="#ffc107"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z" />
+        </svg>
+      );
+    }
+    if (rating >= starValue - 0.5) {
+      // Half Star SVG
+      return (
+        <svg
+          key={`half-${index}`}
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="studentDetailHalfGrad">
+              <stop offset="50%" stopColor="#ffc107" />
+              <stop offset="50%" stopColor="#e0e0e0" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z"
+            fill="url(#studentDetailHalfGrad)"
+          />
+        </svg>
+      );
+    }
+    // Empty Star SVG
+    return (
+      <svg
+        key={`empty-${index}`}
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="#e0e0e0"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27z" />
+      </svg>
+    );
+  });
+
+  return <div className="star-rating-display">{stars}</div>;
 };
 
 export const StudentCourseDetail = () => {
@@ -66,10 +104,9 @@ export const StudentCourseDetail = () => {
     [sectionId: number]: number | null;
   }>({});
 
-  // --- State for Reviews ---
   const [reviews, setReviews] = useState<ReviewData[]>([]);
   const [averageRating, setAverageRating] = useState<number>(0);
-  const [visibleReviews, setVisibleReviews] = useState<number>(3); // Initially show 3 reviews
+  const [visibleReviews, setVisibleReviews] = useState<number>(3);
 
   const handleVideoPlay = (sectionId: number, videoId: number) => {
     setPlayingVideoId((prev) => ({
@@ -121,14 +158,16 @@ export const StudentCourseDetail = () => {
     }
   }, [id, token]);
 
-  // --- useEffect to fetch reviews ---
   useEffect(() => {
     if (id && token) {
-      fetch(`http://localhost:8072/app/courses/api/reviews/fetch-reviews/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      fetch(
+        `http://localhost:8072/app/courses/api/reviews/fetch-reviews/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch reviews");
           return res.json();
@@ -199,7 +238,6 @@ export const StudentCourseDetail = () => {
               console.warn(`Missing URL for file ID ${f.id}, skipping...`);
               return null;
             }
-
             try {
               const binary = atob(f.data.replace(/\s/g, ""));
               const byteArray = Uint8Array.from(binary, (char) =>
@@ -209,10 +247,9 @@ export const StudentCourseDetail = () => {
                 type: f.contentType || "application/octet-stream",
               });
               const objectUrl = URL.createObjectURL(blob);
-
               return new FileResponse(
                 f.id,
-                f.title.replace(/[^\w.-]/g, "_"), // sanitize filename
+                f.title.replace(/[^\w.-]/g, "_"),
                 objectUrl,
                 f.contentType
               );
@@ -222,7 +259,6 @@ export const StudentCourseDetail = () => {
             }
           })
           .filter((f): f is FileResponse => f !== null);
-
         setFilesBySection((prev) => ({ ...prev, [sectionId]: processedFiles }));
       })
       .catch((err) =>
@@ -256,9 +292,9 @@ export const StudentCourseDetail = () => {
               <div
                 style={{
                   fontSize: "1.1rem",
-                  color: "#6366f1", // Violet
+                  color: "#6366f1",
                   fontWeight: 600,
-                  marginBottom: "30px", // More space before title
+                  marginBottom: "30px",
                   letterSpacing: "1.5px",
                 }}
               >
@@ -342,7 +378,6 @@ export const StudentCourseDetail = () => {
             const isExpanded = expandedSectionIds.includes(section.id);
             const sectionVideos = videosBySection[section.id] || [];
             const sectionFiles = filesBySection[section.id] || [];
-
             return (
               <div key={section.id} className="section-item">
                 <div
@@ -365,10 +400,8 @@ export const StudentCourseDetail = () => {
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </div>
-
                 {isExpanded && (
                   <>
-                    {/* Videos */}
                     <div className="video-list">
                       {sectionVideos.map((video) => (
                         <div key={video.id} className="video-item">
@@ -429,8 +462,6 @@ export const StudentCourseDetail = () => {
                         </div>
                       ))}
                     </div>
-
-                    {/* Files */}
                     <div className="video-list" style={{ marginTop: "8px" }}>
                       {sectionFiles.map((file) => (
                         <div
@@ -487,7 +518,6 @@ export const StudentCourseDetail = () => {
         <br />
         <br />
 
-        {/* --- Reviews & Ratings Section --- */}
         <h3>Reviews & Ratings</h3>
         <div className="reviews-section">
           <div className="overall-rating-display">

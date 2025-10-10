@@ -32,5 +32,10 @@ public class AnnouncementController {
     public ResponseEntity<List<AnnouncementResponseDTO>> getAnnouncements(@PathVariable(name = "job_id") Long id){
         return new ResponseEntity<>(announcementService.getAnnouncements(id), HttpStatus.OK);
     }
+    @GetMapping("/get-announcements")
+    public ResponseEntity<List<AnnouncementResponseDTO>> getAllAnnouncements(@AuthenticationPrincipal Jwt jwt){
+        String userEmail = jwt.getClaimAsString("email");
+        return new ResponseEntity<>(announcementService.getAllAnnouncements(userEmail), HttpStatus.OK);
+    }
 
 }

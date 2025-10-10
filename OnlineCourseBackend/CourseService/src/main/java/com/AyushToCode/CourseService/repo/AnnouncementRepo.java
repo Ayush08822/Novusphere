@@ -9,5 +9,7 @@ import java.util.List;
 
 @Repository
 public interface AnnouncementRepo extends JpaRepository<Announcements, Long> {
-    List<Announcements> findByJobId(Long id);
+    List<Announcements> findByCourseId(Long id);
+
+    List<Announcements> findByCourseIdIn(List<Long> courseIds);
 }

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaSearch,
@@ -12,6 +12,9 @@ import type { Cart } from "../models/Cart";
 import { AuthContext } from "react-oauth2-code-pkce";
 import { jwtDecode } from "jwt-decode";
 import type { MyLearningData } from "../models/MyLearningData";
+import { StarRating } from "../Utils/StarRating";
+import { AnnouncementData } from "../models/AnnouncementData";
+import { formatTimeAgo } from "../Utils/FormatDate"; // Import the new function
 
 export const Navbar = () => {
   const { token, logOut } = useContext(AuthContext);
@@ -24,17 +27,15 @@ export const Navbar = () => {
   const [initials, setInitials] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const navigate = useNavigate();
+  const [announcements, setAnnouncements] = useState<AnnouncementData[]>([]);
 
   useEffect(() => {
     if (!token) return;
-
     const decoded: any = jwtDecode(token);
     const fullName = decoded?.name || "User";
     const emailId = decoded?.email || "unknown@example.com";
-
     setName(fullName);
     setEmail(emailId);
-
     const nameParts = fullName.split(" ");
     const initials = nameParts
       .map((n: any) => n[0])
@@ -57,7 +58,6 @@ export const Navbar = () => {
         .then((data) => setCartCourses(data))
         .catch((err) => console.error("Failed to fetch cart courses:", err));
     };
-
     fetchCart();
     window.addEventListener("cart-updated", fetchCart);
     return () => {
@@ -80,16 +80,43 @@ export const Navbar = () => {
       );
   }, [token]);
 
+  useEffect(() => {
+    if (!token) return;
+    fetch("http://localhost:8072/app/courses/api/announce/get-announcements", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch announcements");
+        return res.json();
+      })
+      .then((data) => {
+        const announcementObjects = data.map(
+          (a: any) =>
+            new AnnouncementData(
+              a.id,
+              a.announcementTitle,
+              a.announcementDescription,
+              a.email,
+              a.createdAt
+            )
+        );
+        setAnnouncements(announcementObjects);
+      })
+      .catch((err) => console.error("Failed to fetch announcements:", err));
+  }, [token]);
+
+  const handleMarkAsRead = (announcementId: number) => {
+    setAnnouncements((prev) => prev.filter((ann) => ann.id !== announcementId));
+  };
+
   return (
     <nav className="navbar">
-      {/* Left Side */}
       <div className="navbar-left">
         <div className="navbar-logo">Novusphere</div>
-
         <div className="navbar-explore-search">
           <div className="explore-hover-wrapper">
             <span className="explore-label">Explore</span>
-            <div className="explore-dropdown">
+            <div className="navbar-popup explore-dropdown">
               <h4 className="explore-heading">Explore by Goal</h4>
               <ul>
                 <li>
@@ -104,7 +131,9 @@ export const Navbar = () => {
                   <Link to="/search?query=Business">Business</Link>
                 </li>
                 <li>
-                  <Link to="/search?query=Business">Design and Lifestyle</Link>
+                  <Link to="/search?query=Design and Lifestyle">
+                    Design and Lifestyle
+                  </Link>
                 </li>
                 <li>
                   <Link to="/search?query=Health & Wellness">
@@ -150,7 +179,6 @@ export const Navbar = () => {
               </ul>
             </div>
           </div>
-
           <div className="search-container">
             <input
               type="text"
@@ -177,22 +205,18 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Right Side */}
       <div className="navbar-right">
         <Link to="/instructor" className="navbar-link">
           Instructor
         </Link>
-
         <div
           className="bell-container navbar-icon"
           style={{ position: "relative" }}
         >
-          {/* Clicking the icon will take user to /mylearning */}
           <Link to="/mylearning" style={{ color: "inherit" }}>
             <FaBookOpen />
           </Link>
-
-          <div className="bell-popup">
+          <div className="navbar-popup my-learning-popup">
             {myLearningCourses.length === 0 ? (
               <p>No courses found.</p>
             ) : (
@@ -211,7 +235,7 @@ export const Navbar = () => {
                         display: "flex",
                         marginBottom: "12px",
                         gap: "14px",
-                        alignItems: "flex-start",
+                        alignItems: "center",
                       }}
                     >
                       <img
@@ -233,13 +257,13 @@ export const Navbar = () => {
                         </strong>
                         <div className="cart-item-meta">{course.createdBy}</div>
                         <div className="cart-item-price">
-                          ⭐ {course.rating}
+                          <StarRating rating={course.rating} />
                         </div>
                       </div>
                     </li>
                   ))}
                 </ul>
-                <hr className="cart-divider" />
+                <hr className="profile-divider" />
                 <Link to="/mylearning" className="go-to-cart-button">
                   Go to My Learning →
                 </Link>
@@ -248,7 +272,6 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Cart */}
         <div
           className="bell-container navbar-icon"
           style={{ position: "relative" }}
@@ -259,7 +282,7 @@ export const Navbar = () => {
               <span className="cart-count-badge">{cartCourses.length}</span>
             )}
           </Link>
-          <div className="bell-popup">
+          <div className="navbar-popup cart-popup">
             {cartCourses.length === 0 ? (
               <p>No items in cart.</p>
             ) : (
@@ -304,7 +327,7 @@ export const Navbar = () => {
                     </li>
                   ))}
                 </ul>
-                <hr className="cart-divider" />
+                <hr className="profile-divider" />
                 <div className="cart-total">
                   Total: ₹
                   {cartCourses.reduce(
@@ -320,24 +343,54 @@ export const Navbar = () => {
           </div>
         </div>
 
-        {/* Notifications */}
         <div className="bell-container navbar-icon">
           <FaBell />
-          <div className="bell-popup">
-            <h4>Notifications</h4>
-            <p>You have 3 new notifications.</p>
-            <ul>
-              <li>Course "React Basics" updated.</li>
-              <li>New message from instructor.</li>
-              <li>Your course "Spring Boot" is now public.</li>
-            </ul>
+          {announcements.length > 0 && (
+            <span className="cart-count-badge">{announcements.length}</span>
+          )}
+          <div className="navbar-popup bell-popup">
+            <div className="popup-header">
+              <h4>Notifications</h4>
+            </div>
+            {announcements.length > 0 ? (
+              <ul className="notification-list">
+                {announcements.map((ann) => (
+                  <li key={ann.id} className="notification-item">
+                    <div className="notification-item-header">
+                      <span className="notification-email">{ann.email}</span>
+                      <span className="notification-time">
+                        {formatTimeAgo(ann.createdAt)}
+                      </span>
+                    </div>
+                    <div className="notification-item-body">
+                      <strong className="notification-title">
+                        {ann.announcementTitle}
+                      </strong>
+                      <p className="notification-description">
+                        {ann.announcementDescription.substring(0, 100)}
+                        {ann.announcementDescription.length > 100 && "..."}
+                      </p>
+                    </div>
+                    <div className="notification-item-footer">
+                      <button
+                        className="mark-as-read-btn"
+                        onClick={() => handleMarkAsRead(ann.id)}
+                      >
+                        Mark as Read
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-notifications">You have no new notifications.</p>
+            )}
           </div>
         </div>
 
-        {/* Profile */}
         <div className="profile-container navbar-icon">
           <FaUser />
-          <div className="profile-popup">
+          <div className="navbar-popup profile-popup">
             <div className="profile-info">
               <div className="profile-initials">{initials}</div>
               <div className="profile-details">

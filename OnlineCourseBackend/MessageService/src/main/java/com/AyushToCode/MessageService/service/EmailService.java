@@ -16,8 +16,9 @@ public class EmailService {
 
     public void sendEmail(EmailDto emailDto) {
         List<String> emails = emailDto.getAllEmailOnCourseId();
+        System.out.println(emailDto.getEmail());
         String subject = "Announcement.....";
-        String body = "An Announcement has being made. Please check out that particular for further information. Thank you! ";
+        String body = "An Announcement has being made. Please check out for further information. Thank you! ";
         for(String email: emails) {
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(emailDto.getEmail());

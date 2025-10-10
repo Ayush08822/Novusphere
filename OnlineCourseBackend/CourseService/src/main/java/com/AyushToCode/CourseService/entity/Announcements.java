@@ -22,7 +22,7 @@ public class Announcements {
 
     private String email;
 
-    private Long jobId;
+    private Long courseId;
 
     private String announcementTitle;
 

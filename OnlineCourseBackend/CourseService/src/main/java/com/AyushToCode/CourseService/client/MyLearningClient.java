@@ -11,4 +11,7 @@ public interface MyLearningClient {
 
     @GetMapping("/api/mylearning/announce/getEmail")
     public ResponseEntity<List<String>> getAllEmailOnCourseId(@RequestParam Long courseId);
+
+    @GetMapping("/api/mylearning/announce/getCourseIds")
+    public ResponseEntity<List<Long>> getAllCourseIdsOnEmail(@RequestParam String email);
 }

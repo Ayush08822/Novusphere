@@ -2,6 +2,7 @@ package com.AyushToCode.CourseService.controller;
 
 import com.AyushToCode.CourseService.DTO.CourseDTO;
 import com.AyushToCode.CourseService.DTO.CourseResponseDTO;
+import com.AyushToCode.CourseService.DTO.RatingResponseDTO;
 import com.AyushToCode.CourseService.service.CourseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -69,5 +70,10 @@ public class CourseController {
     public ResponseEntity<String> DeleteById(@PathVariable Long courseId) {
         courseService.DeleteById(courseId);
         return new ResponseEntity<>("Deleted SuccesFully", HttpStatus.OK);
+    }
+
+    @GetMapping("/average/{courseId}")
+    public RatingResponseDTO getCourseRating(@PathVariable("courseId") Long courseId){
+        return courseService.getAverageCourseRating(courseId);
     }
 }

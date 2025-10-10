@@ -15,7 +15,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/h2-console/**", "/api/mylearning/announce/getEmail").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/h2-console/**", "/api/mylearning/announce/getEmail", "/api/mylearning/announce/getCourseIds").permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"))
                 .headers(headers -> headers

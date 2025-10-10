@@ -32,8 +32,15 @@ public class MyLearningController {
         return new ResponseEntity<>(myLearningService.getCoursesByEmail(email), HttpStatus.OK);
     }
 
+    // Feign Client Mapping
     @GetMapping("/announce/getEmail")
     public ResponseEntity<List<String>> getAllEmailOnCourseId(@RequestParam Long courseId){
         return new ResponseEntity<>(myLearningService.getAllEmailOnCourseId(courseId), HttpStatus.OK);
+    }
+
+    //Feign Client Mapping
+    @GetMapping("/announce/getCourseIds")
+    public ResponseEntity<List<Long>> getAllCourseIdsOnEmail(@RequestParam String email){
+        return new ResponseEntity<>(myLearningService.getCourseIds(email), HttpStatus.OK);
     }
 }
