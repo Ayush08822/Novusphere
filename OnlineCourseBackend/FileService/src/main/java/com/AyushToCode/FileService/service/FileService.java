@@ -25,7 +25,7 @@ public class FileService {
     private final FileRepo fileRepo;
     private final SectionFeignClient feignClient;
 
-    public List<ResponseDTO> saveResource(String title, MultipartFile[] files, Long sectionId) throws Exception {
+    public List<ResponseDTO> saveResource(String title, MultipartFile[] files, String sectionId) throws Exception {
         if (!feignClient.getBooleanValue(sectionId)) {
             throw new NoSuchSectionFoundException("No such section found with the id : " + sectionId);
         }
@@ -71,7 +71,7 @@ public class FileService {
         return fileRepo.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
     }
 
-    public List<ResponseDTO> getFilesBySectionId(Long sectionId) {
+    public List<ResponseDTO> getFilesBySectionId(String sectionId) {
         List<File> files = fileRepo.findBySectionId(sectionId);
         return files.stream().map(file -> {
             ResponseDTO ResponseDTO = new ResponseDTO();

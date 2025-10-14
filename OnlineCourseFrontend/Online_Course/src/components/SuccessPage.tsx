@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "react-oauth2-code-pkce";
-import "../SucessPage.css";
+import "../css/SucessPage.css";
 
 export const SuccessPage = () => {
   const navigate = useNavigate();

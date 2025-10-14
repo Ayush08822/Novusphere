@@ -2,10 +2,10 @@ package com.AyushToCode.CourseService.repo;
 
 import com.AyushToCode.CourseService.DTO.SectionResponseDTO;
 import com.AyushToCode.CourseService.entity.Section;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface SectionRepo extends JpaRepository<Section , Long> {
-    List<Section> findByCourseId(Long courseId);
+public interface SectionRepo extends MongoRepository<Section , String> {
+    List<Section> findByCourseId(String courseId);
 }

@@ -24,18 +24,9 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
-  datasource:
-    url: jdbc:h2:mem:coursedb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
-  h2:
-    console:
-      enabled: true
+  data:
+    mongodb:
+      uri: "mongodb://localhost:27017/coursedb"
 
 rabbitmq:
   host: localhost

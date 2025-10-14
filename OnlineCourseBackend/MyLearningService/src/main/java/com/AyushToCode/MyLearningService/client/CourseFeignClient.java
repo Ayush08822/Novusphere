@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface CourseFeignClient {
 
     @GetMapping("/api/courses/average/{courseId}")
-    public RatingResponseDTO getCourseRating(@PathVariable("courseId") Long courseId);
+    public RatingResponseDTO getCourseRating(@PathVariable("courseId") String courseId);
 }

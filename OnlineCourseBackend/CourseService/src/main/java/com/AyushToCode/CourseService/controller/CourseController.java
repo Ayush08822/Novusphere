@@ -38,7 +38,7 @@ public class CourseController {
 
     @PutMapping("/public/{courseId}")
     public ResponseEntity<Boolean> makeCoursePublic(
-            @PathVariable Long courseId,
+            @PathVariable String courseId,
             @RequestBody boolean isPublic
     ) throws Exception {
         return new ResponseEntity<>(courseService.makeCoursePublic(courseId, isPublic), HttpStatus.OK);
@@ -57,7 +57,7 @@ public class CourseController {
     }
 
     @GetMapping("/{courseId}")
-    public ResponseEntity<CourseResponseDTO> getCourseById(@PathVariable Long courseId) {
+    public ResponseEntity<CourseResponseDTO> getCourseById(@PathVariable String courseId) {
         return new ResponseEntity<>(courseService.getCourseById(courseId), HttpStatus.OK);
     }
 
@@ -67,13 +67,13 @@ public class CourseController {
     }
 
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<String> DeleteById(@PathVariable Long courseId) {
+    public ResponseEntity<String> DeleteById(@PathVariable String courseId) {
         courseService.DeleteById(courseId);
         return new ResponseEntity<>("Deleted SuccesFully", HttpStatus.OK);
     }
 
     @GetMapping("/average/{courseId}")
-    public RatingResponseDTO getCourseRating(@PathVariable("courseId") Long courseId){
+    public RatingResponseDTO getCourseRating(@PathVariable("courseId") String courseId){
         return courseService.getAverageCourseRating(courseId);
     }
 }

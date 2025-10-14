@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import "../CourseDetails.css";
+import "../css/CourseDetails.css";
 import { CreateSection } from "./CreateSection";
 import type { CourseFormData } from "../models/CourseFormData";
 import { AuthContext } from "react-oauth2-code-pkce";

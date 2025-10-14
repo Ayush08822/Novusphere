@@ -76,14 +76,14 @@ public class MyLearningService {
         }
     }
 
-    public List<String> getAllEmailOnCourseId(Long courseId) {
+    public List<String> getAllEmailOnCourseId(String courseId) {
         List<MyLearning> myLearning = repository.findByCourseId(courseId);
         return myLearning.stream()
                 .map(MyLearning::getEmail)
                 .toList();
     }
 
-    public List<Long> getCourseIds(String email) {
+    public List<String> getCourseIds(String email) {
         List<MyLearning> purchasedCourses = repository.findByEmail(email);
         // 2. If the list is empty, return an empty list immediately.
         if (purchasedCourses == null || purchasedCourses.isEmpty()) {
@@ -93,6 +93,11 @@ public class MyLearningService {
         return purchasedCourses.stream()
                 .map(MyLearning::getCourseId)
                 .toList();
+    }
+
+    //This function is used to check whether the currently logged in user has the authority to access the course.
+    public boolean isUserEnrolled(String email, String courseId) {
+        return repository.existsByEmailAndCourseId(email, courseId);
     }
 }
 

@@ -30,6 +30,6 @@ public class Cart {
 
     private double rating;
 
-    private Long courseId;
+    private String courseId;
 
 }

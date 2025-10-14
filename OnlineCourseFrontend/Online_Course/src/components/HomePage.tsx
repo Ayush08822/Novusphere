@@ -1,7 +1,7 @@
 // src/pages/HomePage.tsx
 import { Link } from "react-router-dom";
 import { TopRatedCourses } from "../components/TopRatedCourses";
-import "../HomePage.css";
+import "../css/HomePage.css";
 
 export const HomePage = () => {
   return (

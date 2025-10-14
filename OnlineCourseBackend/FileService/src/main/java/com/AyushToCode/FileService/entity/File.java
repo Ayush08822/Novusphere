@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "files")
 public class File {
 
     @Id
@@ -16,5 +17,5 @@ public class File {
     @Lob
     @Column(columnDefinition = "BLOB")
     private byte[] data;
-    private Long sectionId;
+    private String sectionId;
 }

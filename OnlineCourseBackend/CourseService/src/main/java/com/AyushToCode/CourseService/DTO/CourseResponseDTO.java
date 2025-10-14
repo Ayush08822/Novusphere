@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseResponseDTO {
-    private Long id;
+    private String id;
     private String tags;
     private String title;
     private String description;

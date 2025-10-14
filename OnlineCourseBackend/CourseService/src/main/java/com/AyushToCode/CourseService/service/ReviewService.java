@@ -22,7 +22,7 @@ public class ReviewService {
     private final ReviewRepo reviewRepository;
     private final CourseRepo courseRepository; // Make sure you have this repository
 
-    public ReviewsResponseDto getReviewsForCourse(Long courseId) {
+    public ReviewsResponseDto getReviewsForCourse(String courseId) {
         // 1. Fetch all reviews
         List<Review> reviews = reviewRepository.findByCourseId(courseId);
         Course course = courseRepository.findById(courseId)

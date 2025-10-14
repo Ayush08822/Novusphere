@@ -22,14 +22,14 @@ public class AnnouncementController {
     private final AnnouncementService announcementService;
 
     @PostMapping("/post-announcements/{job_id}")
-    public ResponseEntity<String> postAnnouncements(@AuthenticationPrincipal Jwt jwt, @RequestBody AnnouncementRequestDTO announcementRequestDTO, @PathVariable(name = "job_id") Long id){
+    public ResponseEntity<String> postAnnouncements(@AuthenticationPrincipal Jwt jwt, @RequestBody AnnouncementRequestDTO announcementRequestDTO, @PathVariable(name = "job_id") String id){
         String userEmail = jwt.getClaimAsString("email");
         announcementService.postAnnouncements(announcementRequestDTO, userEmail, id);
         return new ResponseEntity<>("Announcement successfully created.", HttpStatus.CREATED);
     }
 
     @GetMapping("/get-announcements/{job_id}")
-    public ResponseEntity<List<AnnouncementResponseDTO>> getAnnouncements(@PathVariable(name = "job_id") Long id){
+    public ResponseEntity<List<AnnouncementResponseDTO>> getAnnouncements(@PathVariable(name = "job_id") String id){
         return new ResponseEntity<>(announcementService.getAnnouncements(id), HttpStatus.OK);
     }
     @GetMapping("/get-announcements")

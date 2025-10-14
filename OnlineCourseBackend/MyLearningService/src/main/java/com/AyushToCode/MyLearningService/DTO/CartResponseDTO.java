@@ -18,5 +18,5 @@ public class CartResponseDTO {
     private String imageType;
     private double rating;
     private BigDecimal price;
-    private Long courseId;
+    private String courseId;
 }

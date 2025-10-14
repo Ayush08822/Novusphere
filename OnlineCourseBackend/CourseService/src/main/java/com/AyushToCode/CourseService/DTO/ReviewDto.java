@@ -6,5 +6,5 @@ import lombok.Data;
 public class ReviewDto {
     private double rating;
     private String comment;
-    private Long courseId;
+    private String courseId;
 }

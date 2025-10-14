@@ -65,12 +65,12 @@ public class CourseService {
         return course;
     }
 
-    public CourseResponseDTO getCourseById(Long courseId) {
+    public CourseResponseDTO getCourseById(String courseId) {
         Course course = courseRepo.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found with ID: " + courseId));
         return mapToDTO(course);
     }
 
-    public void DeleteById(Long courseId) {
+    public void DeleteById(String courseId) {
         courseRepo.deleteById(courseId);
     }
 
@@ -99,7 +99,7 @@ public class CourseService {
         }).toList();
     }
 
-    public Boolean makeCoursePublic(Long id, boolean isPublic) throws Exception {
+    public Boolean makeCoursePublic(String id, boolean isPublic) throws Exception {
         Optional<Course> optionalCourse = courseRepo.findById(id);
 
         if (optionalCourse.isPresent()) {
@@ -163,7 +163,7 @@ public class CourseService {
         courseRepo.save(byTitleAndCreatedBy);
     }
 
-    public void submitReview(Long courseId, ReviewDto reviewDto) throws Exception {
+    public void submitReview(String courseId, ReviewDto reviewDto) throws Exception {
         Optional<Course> course = courseRepo.findById(courseId);
         if(course.isPresent()) {
             Course get_course = course.get();
@@ -175,7 +175,7 @@ public class CourseService {
         }
     }
 
-    public RatingResponseDTO getAverageCourseRating(Long courseId) {
+    public RatingResponseDTO getAverageCourseRating(String courseId) {
         Course course = courseRepo.findById(courseId).orElseThrow(() -> new RuntimeException("Course not found for given id " + " " + courseId));
         RatingResponseDTO ratingResponseDTO = new RatingResponseDTO();
         ratingResponseDTO.setAverageRating(course.getRating());

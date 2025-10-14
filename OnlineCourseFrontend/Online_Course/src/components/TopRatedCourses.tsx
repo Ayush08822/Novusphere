@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { CourseFormData } from "../models/CourseFormData";
 import { MyLearningData } from "../models/MyLearningData";
-import "../TopRatedCourses.css";
-import "../HoverCourses.css";
+import "../css/TopRatedCourses.css";
+import "../css/HoverCourses.css";
 import { Link } from "react-router-dom";
 import { AuthContext } from "react-oauth2-code-pkce";
 
@@ -16,11 +16,11 @@ export const TopRatedCourses = () => {
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [addedCourse, setAddedCourse] = useState<CourseFormData | null>(null);
-  const [cartCourses, setCartCourses] = useState<Set<number>>(() => {
+  const [cartCourses, setCartCourses] = useState<Set<string>>(() => {
     const stored = localStorage.getItem("cartCourses");
     return stored ? new Set(JSON.parse(stored)) : new Set();
   });
-  const [hoveredCourseId, setHoveredCourseId] = useState<number | null>(null);
+  const [hoveredCourseId, setHoveredCourseId] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch top-rated courses
@@ -46,7 +46,7 @@ export const TopRatedCourses = () => {
       });
 
     // Fetch purchased (my learning) courses
-    fetch("http://localhost:8072/app/mylearning/api/mylearning/secure/get", {
+    fetch("http://localhost:8072/app/mylearning/api/mylearning/getCourses", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -63,7 +63,7 @@ export const TopRatedCourses = () => {
       });
   }, []);
 
-  const isCourseOwned = (courseId: number) => {
+  const isCourseOwned = (courseId: string) => {
     return myLearningCourses.some((course) => course.courseId === courseId);
   };
 

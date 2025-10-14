@@ -4,8 +4,8 @@ import { CourseFormData } from "../models/CourseFormData";
 import { SectionData } from "../models/SectionData";
 import { VideoResponse } from "../models/VideoResponse";
 import { FileResponse } from "../models/FileResponse";
-import "../StudentCourseDetail.css";
-import "../VideoList.css";
+import "../css/StudentCourseDetail.css";
+import "../css/VideoList.css";
 import { AuthContext } from "react-oauth2-code-pkce";
 
 // --- Interfaces for Review Data ---
@@ -180,27 +180,45 @@ export const StudentCourseDetail = () => {
     }
   }, [id, token]);
 
+  /**
+   * Fetches video data for a specific section, converts the Base64 data
+   * into playable blob URLs, and updates the component's state.
+   * @param {number} sectionId The ID of the section to fetch videos for.
+   */
   const fetchVideos = (sectionId: number) => {
+    // 1. Abort if there's no authentication token available.
     if (!token) return;
+
+    // 2. Make an API call to the video endpoint for the given section.
     fetch(`http://localhost:8072/app/videos/api/video/${sectionId}`, {
       headers: {
+        // Include the JWT for authorization.
         Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
       .then((videos: VideoResponse[]) => {
+        // 3. Process the array of video data received from the backend.
         const processedVideos = videos
           .map((video) => {
+            // Skip any video entries that don't have data.
             if (!video.data) return null;
             try {
+              // --- Base64 to Blob URL Conversion ---
+              // a. Decode the Base64 string into a raw binary string.
               const binary = atob(video.data.replace(/\s/g, ""));
+              // b. Create a byte array (Uint8Array) from the binary string.
               const byteArray = Uint8Array.from(binary, (char) =>
                 char.charCodeAt(0)
               );
+              // c. Create a Blob (a file-like object) from the byte array with the correct video MIME type.
               const blob = new Blob([byteArray], {
                 type: video.contentType || "video/mp4",
               });
+              // d. Generate a temporary, browser-readable URL for the Blob.
               const objectUrl = URL.createObjectURL(blob);
+
+              // e. Return a new VideoResponse object with the playable URL.
               return new VideoResponse(
                 video.id,
                 video.title,
@@ -208,23 +226,34 @@ export const StudentCourseDetail = () => {
                 video.contentType
               );
             } catch (e) {
+              // If a specific video's data is corrupted, log the error and skip it.
               console.error(`Error decoding video ID ${video.id}:`, e);
               return null;
             }
           })
+          // 4. Filter out any null values that resulted from processing errors.
           .filter((v): v is VideoResponse => v !== null);
+
+        // 5. Update the component's state, mapping the processed videos to the correct sectionId.
         setVideosBySection((prev) => ({
           ...prev,
           [sectionId]: processedVideos,
         }));
       })
       .catch((err) =>
+        // Handle network errors for the entire fetch operation.
         console.error(`Error fetching videos for section ${sectionId}:`, err)
       );
   };
 
+  /**
+   * Fetches file data for a specific section, converts the Base64 data
+   * into downloadable blob URLs, sanitizes filenames, and updates the component's state.
+   * @param {number} sectionId The ID of the section to fetch files for.
+   */
   const fetchFiles = (sectionId: number) => {
     if (!token) return;
+
     fetch(`http://localhost:8072/app/files/api/files/${sectionId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -239,6 +268,7 @@ export const StudentCourseDetail = () => {
               return null;
             }
             try {
+              // --- Base64 to Blob URL Conversion (same as fetchVideos) ---
               const binary = atob(f.data.replace(/\s/g, ""));
               const byteArray = Uint8Array.from(binary, (char) =>
                 char.charCodeAt(0)
@@ -247,8 +277,12 @@ export const StudentCourseDetail = () => {
                 type: f.contentType || "application/octet-stream",
               });
               const objectUrl = URL.createObjectURL(blob);
+
+              // Return a new FileResponse with the downloadable URL.
               return new FileResponse(
                 f.id,
+                // Sanitize the filename by replacing any characters that are not
+                // letters, numbers, underscores, periods, or hyphens with an underscore.
                 f.title.replace(/[^\w.-]/g, "_"),
                 objectUrl,
                 f.contentType
@@ -259,6 +293,8 @@ export const StudentCourseDetail = () => {
             }
           })
           .filter((f): f is FileResponse => f !== null);
+
+        // Update the component's state with the processed files for this section.
         setFilesBySection((prev) => ({ ...prev, [sectionId]: processedFiles }));
       })
       .catch((err) =>

@@ -7,7 +7,7 @@ import {
   FaUser,
   FaBookOpen,
 } from "react-icons/fa";
-import "../Navbar.css";
+import "../css/Navbar.css";
 import type { Cart } from "../models/Cart";
 import { AuthContext } from "react-oauth2-code-pkce";
 import { jwtDecode } from "jwt-decode";
@@ -67,7 +67,7 @@ export const Navbar = () => {
 
   useEffect(() => {
     if (!token) return;
-    fetch("http://localhost:8072/app/mylearning/api/mylearning/secure/get", {
+    fetch("http://localhost:8072/app/mylearning/api/mylearning/getCourses", {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

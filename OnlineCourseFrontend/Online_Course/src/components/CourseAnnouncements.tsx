@@ -1,15 +1,7 @@
 import React from "react";
+import type { AnnouncementData } from "../models/AnnouncementData";
 
 // --- INTERFACE DEFINITION ---
-// Define the interface directly in the file that uses it.
-export interface AnnouncementData {
-  id: number;
-  announcementTitle: string;
-  announcementDescription: string;
-  email: string;
-  createdAt: string;
-}
-
 // Date formatting function
 const formatAnnouncementDate = (dateString: string): string => {
   const date = new Date(dateString);

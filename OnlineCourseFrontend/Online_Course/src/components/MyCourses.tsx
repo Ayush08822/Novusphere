@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import "../MyCourses.css";
+import "../css/MyCourses.css";
 import type { CourseFormData } from "../models/CourseFormData";
 import { Link } from "react-router-dom";
 import { AuthContext } from "react-oauth2-code-pkce";
@@ -21,6 +21,7 @@ export const MyCourses = () => {
       .catch((err) => console.error("Error fetching courses:", err));
   }, []);
 
+  //Function to make the course public for all the students and other instructors.
   const handlePublicClick = (courseId: number) => {
     setSelectedCourseId(courseId);
     setShowModal(true);

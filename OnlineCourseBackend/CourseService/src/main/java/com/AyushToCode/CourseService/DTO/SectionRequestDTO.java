@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SectionRequestDTO {
     private String name;
-    private Long courseId;
+    private String courseId;
 }

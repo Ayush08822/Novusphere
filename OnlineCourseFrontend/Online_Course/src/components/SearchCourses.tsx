@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import "../searchCourses.css";
+import "../css/searchCourses.css";
 import type { CourseFormData } from "../models/CourseFormData";
 import { AuthContext } from "react-oauth2-code-pkce";
 
@@ -18,6 +18,7 @@ export const SearchCourses = () => {
     return stored ? new Set(JSON.parse(stored)) : new Set();
   });
 
+  //To fetch courses based on specific params.
   useEffect(() => {
     const query = new URLSearchParams(location.search).get("query");
     if (query) {
@@ -47,60 +48,99 @@ export const SearchCourses = () => {
     }
   }, [location.search, token]);
 
+  /**
+   * Handles adding a course to the shopping cart when a user clicks the "Add to Cart" button.
+   * It prevents the default link navigation, prepares course data and image for upload,
+   * sends it to the backend, and updates the UI and local state on success.
+   * @param e The mouse click event.
+   * @param course The course object to be added to the cart.
+   */
   const handleAddToCart = async (
     e: React.MouseEvent,
     course: CourseFormData
   ) => {
-    e.preventDefault(); // prevent Link navigation
+    // 1. Prevent the default action (e.g., navigating if the button is inside a Link)
+    //    to allow this function to handle the click logic.
+    e.preventDefault();
+
     try {
+      // --- Image Conversion ---
+      // Get the Base64 image string from the course object.
       const base64Image = (course as any).imageData;
+      // Decode the Base64 string into a binary string.
       const byteString = atob(base64Image);
+      // Create an ArrayBuffer to hold the binary data.
       const ab = new ArrayBuffer(byteString.length);
+      // Create a typed array (Uint8Array) to manipulate the binary data.
       const ia = new Uint8Array(ab);
+      // Loop through the binary string and set the byte values in the Uint8Array.
       for (let i = 0; i < byteString.length; i++) {
         ia[i] = byteString.charCodeAt(i);
       }
+      // Create a Blob (a file-like object) from the binary data with the correct image type.
       const imageBlob = new Blob([ia], { type: "image/jpeg" });
 
+      // --- Data Preparation ---
+      // Create a plain JavaScript object with the course's text data.
       const data = {
         title: course.title,
         createdBy: course.createdBy,
         rating: course.rating,
         price: course.price,
       };
+      // Convert the JavaScript object into a JSON Blob.
       const jsonBlob = new Blob([JSON.stringify(data)], {
         type: "application/json",
       });
 
+      // --- Form Data Construction ---
+      // Create a FormData object to send both JSON and image data together.
       const formData = new FormData();
+      // Append the JSON data as a part named "added_course".
       formData.append("added_course", jsonBlob);
+      // Append the image Blob as a part named "image", with a filename.
       formData.append("image", imageBlob, "course.jpg");
 
+      // --- API Request ---
+      // Send the FormData to the backend endpoint using a POST request.
       const response = await fetch(
         "http://localhost:8072/app/carts/api/cart/add",
         {
           method: "POST",
-          body: formData,
+          body: formData, // The FormData object is the body.
           headers: {
+            // Include the user's authorization token.
             Authorization: `Bearer ${token}`,
+            // NOTE: Do NOT set 'Content-Type'. The browser sets it automatically
+            // to 'multipart/form-data' with the correct boundary for FormData.
           },
         }
       );
 
+      // If the server responds with an error status, throw an error to be caught by the catch block.
       if (!response.ok) throw new Error("Failed to add to cart");
 
+      // --- UI and State Update on Success ---
+      // Set the state to show a "Course Added" confirmation modal.
       setAddedCourse(course);
       setShowModal(true);
+
+      // Update the local list of cart courses.
       setCartCourses((prev) => {
+        // Use a Set to easily add the new course ID, avoiding duplicates.
         const updated = new Set(prev).add(course.id!);
+        // Persist the updated cart IDs to localStorage for session persistence.
         localStorage.setItem(
           "cartCourses",
           JSON.stringify(Array.from(updated))
         );
+        // Dispatch a global event that other components (like the Navbar) can listen for
+        // to know when to update their own state (e.g., the cart count).
         window.dispatchEvent(new Event("cart-updated"));
         return updated;
       });
     } catch (error) {
+      // If any part of the try block fails, log the error and show an alert to the user.
       console.error("Error:", error);
       alert("Failed to add course to cart");
     }
@@ -127,9 +167,7 @@ export const SearchCourses = () => {
               >
                 <div className="search-course-card">
                   <img
-                    src={`data:image/jpeg;base64,${
-                      (course as any).imageData
-                    }`}
+                    src={`data:image/jpeg;base64,${(course as any).imageData}`}
                     alt={course.title}
                     className="course-img"
                   />

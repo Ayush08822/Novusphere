@@ -2,7 +2,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
-import "../CourseForm.css";
+import "../css/CourseForm.css";
 
 
 interface Props {

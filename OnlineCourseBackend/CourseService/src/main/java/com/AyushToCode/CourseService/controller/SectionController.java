@@ -26,12 +26,12 @@ public class SectionController {
 
     @GetMapping("/{sectionId}")
     @PermitAll
-    public Boolean getBooleanValue(@PathVariable Long sectionId) {
+    public Boolean getBooleanValue(@PathVariable String sectionId) {
         return sectionService.getBooleanValueFromSectionId(sectionId);
     }
 
     @GetMapping("/course/{courseId}")
-    public ResponseEntity<List<SectionResponseDTO>> getSectionsFromCourseId(@PathVariable Long courseId) {
+    public ResponseEntity<List<SectionResponseDTO>> getSectionsFromCourseId(@PathVariable String courseId) {
         return new ResponseEntity<>(sectionService.getSectionFromCourseId(courseId), HttpStatus.OK);
     }
 

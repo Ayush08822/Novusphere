@@ -1,22 +1,23 @@
 package com.AyushToCode.CourseService.entity;
 
-import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
 import java.time.LocalDateTime;
 
-@Entity
+@Document(collection = "reviews")
 @Data
 @NoArgsConstructor
 public class Review {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private double rating;
 
-    @Column(length = 10000)
     private String comment;
 
     // The user's email, extracted from the JWT token at creation time
@@ -24,12 +25,7 @@ public class Review {
 
     private LocalDateTime date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
+    @DocumentReference(lazy = true) // 'lazy = true' is the equivalent of FetchType.LAZY
     private Course course;
 
-    @PrePersist
-    protected void onCreate() {
-        date = LocalDateTime.now();
-    }
 }

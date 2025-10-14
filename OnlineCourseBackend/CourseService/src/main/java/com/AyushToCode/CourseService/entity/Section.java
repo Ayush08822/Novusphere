@@ -1,8 +1,10 @@
 package com.AyushToCode.CourseService.entity;
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
-@Entity
+@Document(collection = "sections")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -11,12 +13,10 @@ import lombok.*;
 public class Section {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
 
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id")
+    @DocumentReference
     private Course course;
 }

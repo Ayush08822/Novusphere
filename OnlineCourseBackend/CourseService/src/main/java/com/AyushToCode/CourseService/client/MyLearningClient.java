@@ -10,8 +10,8 @@ import java.util.List;
 public interface MyLearningClient {
 
     @GetMapping("/api/mylearning/announce/getEmail")
-    public ResponseEntity<List<String>> getAllEmailOnCourseId(@RequestParam Long courseId);
+    public ResponseEntity<List<String>> getAllEmailOnCourseId(@RequestParam String courseId);
 
     @GetMapping("/api/mylearning/announce/getCourseIds")
-    public ResponseEntity<List<Long>> getAllCourseIdsOnEmail(@RequestParam String email);
+    public ResponseEntity<List<String>> getAllCourseIdsOnEmail(@RequestParam String email);
 }

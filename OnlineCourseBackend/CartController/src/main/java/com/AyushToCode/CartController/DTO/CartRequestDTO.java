@@ -14,5 +14,5 @@ public class CartRequestDTO {
     private String createdBy;
     private double rating;
     private BigDecimal price;
-    private Long courseId;
+    private String courseId;
 }

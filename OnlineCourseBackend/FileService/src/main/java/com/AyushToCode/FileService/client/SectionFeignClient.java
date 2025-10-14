@@ -8,5 +8,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface SectionFeignClient {
 
     @GetMapping("/api/sections/{sectionId}")
-    public Boolean getBooleanValue(@PathVariable Long sectionId);
+    public Boolean getBooleanValue(@PathVariable String sectionId);
 }

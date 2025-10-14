@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { MyLearningData } from "../models/MyLearningData";
 import { AuthContext } from "react-oauth2-code-pkce";
-import "../spinner.css";
+import "../css/spinner.css";
 import "../css/MyLearningPage.css";
 
 export const MyLearningPage = () => {
@@ -14,7 +14,7 @@ export const MyLearningPage = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("http://localhost:8072/app/mylearning/api/mylearning/secure/get", {
+        const response = await fetch("http://localhost:8072/app/mylearning/api/mylearning/getCourses", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

@@ -21,26 +21,35 @@ public class MyLearningController {
     @PostMapping("/secure/add")
     public ResponseEntity<String> savePurchasedCourses(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getClaim("email");
-        System.out.println(email);
         myLearningService.saveCourses(email);
         return ResponseEntity.ok("Courses saved to My Learning");
     }
 
-    @GetMapping("/secure/get")
-    public ResponseEntity<List<MyLearningCourseResponseDTO>> getPurchasedCourses(@AuthenticationPrincipal Jwt jwt) {
+    @GetMapping("/secure/check-enrollment/{courseId}")
+    public ResponseEntity<?> getPurchasedCourses(@AuthenticationPrincipal Jwt jwt, @PathVariable String courseId) {
+        String email = jwt.getClaim("email");
+        // The Authorization Check
+        if (!myLearningService.isUserEnrolled(email, courseId)) {
+            // If not enrolled, return a "Forbidden" error.
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: You are not enrolled in this course.");
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/getCourses")
+    public ResponseEntity<?> getPurchasedCoursesBasedOnEmail(@AuthenticationPrincipal Jwt jwt) {
         String email = jwt.getClaim("email");
         return new ResponseEntity<>(myLearningService.getCoursesByEmail(email), HttpStatus.OK);
     }
 
     // Feign Client Mapping
     @GetMapping("/announce/getEmail")
-    public ResponseEntity<List<String>> getAllEmailOnCourseId(@RequestParam Long courseId){
+    public ResponseEntity<List<String>> getAllEmailOnCourseId(@RequestParam String courseId){
         return new ResponseEntity<>(myLearningService.getAllEmailOnCourseId(courseId), HttpStatus.OK);
     }
 
     //Feign Client Mapping
     @GetMapping("/announce/getCourseIds")
-    public ResponseEntity<List<Long>> getAllCourseIdsOnEmail(@RequestParam String email){
+    public ResponseEntity<List<String>> getAllCourseIdsOnEmail(@RequestParam String email){
         return new ResponseEntity<>(myLearningService.getCourseIds(email), HttpStatus.OK);
     }
 }

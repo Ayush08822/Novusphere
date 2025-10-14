@@ -21,12 +21,12 @@ public class VideoController {
     private final VideoService videoService;
 
     @PostMapping("/videos/upload")
-    public ResponseEntity<VideoResponseDTO> uploadVideo(@RequestParam("title") String title, @RequestParam("video") MultipartFile file, @RequestParam("sectionId") Long sectionId) throws Exception {
+    public ResponseEntity<VideoResponseDTO> uploadVideo(@RequestParam("title") String title, @RequestParam("video") MultipartFile file, @RequestParam("sectionId") String sectionId) throws Exception {
             return new ResponseEntity<>(videoService.saveVideo(title, file, sectionId), HttpStatus.OK);
     }
 
     @GetMapping("/video/{sectionId}")
-    public ResponseEntity<List<VideoResponseDTO>> getVideosBSectionId(@PathVariable Long sectionId) {
+    public ResponseEntity<List<VideoResponseDTO>> getVideosBSectionId(@PathVariable String sectionId) {
         return new ResponseEntity<>(videoService.getVideosBSectionId(sectionId), HttpStatus.OK);
 
     }

@@ -23,7 +23,7 @@ public class FileController {
     private final FileService fileService;
 
     @PostMapping("/upload")
-    public ResponseEntity<List<ResponseDTO>> uploadFile(@RequestParam("title") String title, @RequestParam("files") MultipartFile[] files , @RequestParam("sectionId") Long sectionId) throws Exception {
+    public ResponseEntity<List<ResponseDTO>> uploadFile(@RequestParam("title") String title, @RequestParam("files") MultipartFile[] files , @RequestParam("sectionId") String sectionId) throws Exception {
         return new ResponseEntity<>(fileService.saveResource(title, files, sectionId), HttpStatus.OK);
     }
 
@@ -37,7 +37,7 @@ public class FileController {
 //    }
 
     @GetMapping("/{sectionId}")
-    public ResponseEntity<List<ResponseDTO>> getFilesBySectionId(@PathVariable Long sectionId) {
+    public ResponseEntity<List<ResponseDTO>> getFilesBySectionId(@PathVariable String sectionId) {
         try {
             return new ResponseEntity<>(fileService.getFilesBySectionId(sectionId) , HttpStatus.OK);
         } catch (Exception e) {

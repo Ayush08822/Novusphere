@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
+@Table(name = "videos")
 @Data
 public class VideoFile {
 
@@ -13,7 +14,7 @@ public class VideoFile {
     private String title;
     private String name;
     private String type;
-    private Long sectionId;
+    private String sectionId;
 
     @Lob
     @Column(length = 1000000000) // Allows large videos

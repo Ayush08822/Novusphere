@@ -13,5 +13,5 @@ public class MyLearningCourseResponseDTO {
     private String createdBy;
     private byte[] imageData;
     private double rating;
-    private Long courseId;
+    private String courseId;
 }

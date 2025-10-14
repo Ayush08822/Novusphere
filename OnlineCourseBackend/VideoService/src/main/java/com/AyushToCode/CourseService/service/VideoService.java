@@ -22,7 +22,7 @@ public class VideoService {
     private final VideoRepo videoRepo;
     private final SectionFeignClient feignClient;
 
-    public VideoResponseDTO saveVideo(String title, MultipartFile file, Long sectionId) throws Exception {
+    public VideoResponseDTO saveVideo(String title, MultipartFile file, String sectionId) throws Exception {
         if(!feignClient.getBooleanValue(sectionId)) throw new NoSuchSectionFoundException("No such section found with the id : " + sectionId);
         String fileName = file.getOriginalFilename();
 
@@ -49,7 +49,7 @@ public class VideoService {
         return videoRepo.findById(id).orElseThrow();
     }
 
-    public List<VideoResponseDTO> getVideosBSectionId(Long sectionId) {
+    public List<VideoResponseDTO> getVideosBSectionId(String sectionId) {
         List<VideoFile> videos = videoRepo.findBySectionId(sectionId);
         return videos.stream().map(video -> {
             VideoResponseDTO videoResponseDTO = new VideoResponseDTO();

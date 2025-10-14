@@ -2,12 +2,12 @@ import { useContext, useEffect, useState, type ChangeEvent } from "react";
 import { SectionData } from "../models/SectionData";
 import { VideoResponse } from "../models/VideoResponse";
 import { FileResponse } from "../models/FileResponse";
-import "../SectionList.css";
-import "../VideoList.css";
+import "../css/SectionList.css";
+import "../css/VideoList.css";
 import { AuthContext } from "react-oauth2-code-pkce";
 
 // UPDATED: Component now accepts courseId as a prop
-export const SectionList = ({ courseId }: { courseId: string | number }) => {
+export const SectionList = ({ courseId }: { courseId: string | undefined }) => {
   // NEW: State to hold the sections fetched from the API
   const [sections, setSections] = useState<SectionData[]>([]);
 

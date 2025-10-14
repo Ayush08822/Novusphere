@@ -10,5 +10,7 @@ import java.util.List;
 public interface MyLearningRepo extends JpaRepository<MyLearning, Long> {
     List<MyLearning> findByEmail(String email);
 
-    List<MyLearning> findByCourseId(Long courseId);
+    List<MyLearning> findByCourseId(String courseId);
+
+    boolean existsByEmailAndCourseId(String email, String courseId);
 }

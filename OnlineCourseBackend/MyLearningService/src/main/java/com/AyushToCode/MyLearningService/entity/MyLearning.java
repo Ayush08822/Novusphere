@@ -33,5 +33,5 @@ public class MyLearning {
 
         private LocalDateTime enrolledAt;
 
-        private Long courseId;
+        private String courseId;
 }

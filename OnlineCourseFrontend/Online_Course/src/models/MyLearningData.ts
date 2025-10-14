@@ -5,7 +5,7 @@ export class MyLearningData {
   createdBy: string = "";
   rating: number = 0;
   image: File | null = null;
-  courseId: number = 0;
+  courseId: string = "";
 
   constructor(
     id: number,
@@ -14,7 +14,7 @@ export class MyLearningData {
     createdBy: string,
     rating: number,
     image: File | null,
-    courseId: number
+    courseId: string
   ) {
     this.id = id;
     this.title = title;

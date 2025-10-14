@@ -24,7 +24,7 @@ public class AnnouncementService {
     private final MyLearningClient myLearningClient;
     private final StreamBridge streamBridge;
 
-    public void postAnnouncements(AnnouncementRequestDTO announcementRequestDTO, String userEmail, Long id) {
+    public void postAnnouncements(AnnouncementRequestDTO announcementRequestDTO, String userEmail, String id) {
         Announcements announcements = new Announcements();
         announcements.setCourseId(id);
         announcements.setAnnouncementTitle(announcementRequestDTO.getAnnouncementTitle());
@@ -35,7 +35,7 @@ public class AnnouncementService {
         sendEmail(userEmail, id);
     }
 
-    private void sendEmail(String userEmail, Long courseId) {
+    private void sendEmail(String userEmail, String courseId) {
         List<String> allEmailOnCourseId = myLearningClient.getAllEmailOnCourseId(courseId).getBody();
         EmailDTO emailDTO = new EmailDTO();
         emailDTO.setEmail(userEmail);
@@ -45,7 +45,7 @@ public class AnnouncementService {
 
     }
 
-    public List<AnnouncementResponseDTO> getAnnouncements(Long id) {
+    public List<AnnouncementResponseDTO> getAnnouncements(String id) {
         List<Announcements> announcements = announcementRepo.findByCourseId(id);
         return announcements.stream().map(announce -> {
             AnnouncementResponseDTO announcement = new AnnouncementResponseDTO();
@@ -61,7 +61,7 @@ public class AnnouncementService {
     public List<AnnouncementResponseDTO> getAllAnnouncements(String userEmail) {
         // Step 1: Call the mylearning-service via Feign to get the list of course IDs
         // the user is enrolled in.
-        List<Long> courseIds = myLearningClient.getAllCourseIdsOnEmail(userEmail).getBody();
+        List<String> courseIds = myLearningClient.getAllCourseIdsOnEmail(userEmail).getBody();
 
         // Step 2: If the user is not enrolled in any courses, return an empty list
         // to avoid an unnecessary database call.

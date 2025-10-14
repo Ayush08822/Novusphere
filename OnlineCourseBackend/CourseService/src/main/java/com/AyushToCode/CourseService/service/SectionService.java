@@ -36,7 +36,7 @@ public class SectionService {
         return sectionResponseDTO;
     }
 
-    public Boolean getBooleanValueFromSectionId(Long sectionId) {
+    public Boolean getBooleanValueFromSectionId(String sectionId) {
         Optional<Section> section = sectionRepo.findById(sectionId);
         return section.isPresent();
     }
@@ -51,7 +51,7 @@ public class SectionService {
         }).toList();
     }
 
-    public List<SectionResponseDTO> getSectionFromCourseId(Long courseId) {
+    public List<SectionResponseDTO> getSectionFromCourseId(String courseId) {
         List<Section> sections = sectionRepo.findByCourseId(courseId);
         return sections.stream().map(section -> {
             SectionResponseDTO sectionResponseDTO = new SectionResponseDTO();

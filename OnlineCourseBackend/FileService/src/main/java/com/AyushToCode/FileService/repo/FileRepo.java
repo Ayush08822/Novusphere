@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface FileRepo extends JpaRepository<File , Long> {
     Optional<File> findByName(String name);
 
-    List<File> findBySectionId(Long videoId);
+    List<File> findBySectionId(String videoId);
 
 }

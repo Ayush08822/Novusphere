@@ -14,7 +14,8 @@ export const CartItems = () => {
     (total, course) => total + course.price,
     0
   );
-  console.log(totalCartPrice)
+
+  //Function to fetch all the items availabe in the cart database.
   const fetchCart = () => {
     setLoading(true);
     fetch("http://localhost:8072/app/carts/api/cart/secure/getAll", {
@@ -37,6 +38,7 @@ export const CartItems = () => {
     fetchCart();
   }, []);
 
+  //Simple function to delete a specific item from the exisiting cart and also update the cart.
   const removeFromCart = async (cartId: number) => {
     try {
       const response = await fetch(

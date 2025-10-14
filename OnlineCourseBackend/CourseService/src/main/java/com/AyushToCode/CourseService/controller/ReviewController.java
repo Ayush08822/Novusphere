@@ -20,14 +20,14 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping("/fetch-reviews/{courseId}")
-    public ResponseEntity<ReviewsResponseDto> getCourseReviews(@PathVariable Long courseId) {
+    public ResponseEntity<ReviewsResponseDto> getCourseReviews(@PathVariable String courseId) {
         ReviewsResponseDto response = reviewService.getReviewsForCourse(courseId);
         return ResponseEntity.ok(response);
     }
 
     // This corresponding POST endpoint shows how the email is handled.
     @PostMapping("/submit-review/{courseId}")
-    public ResponseEntity<Review> addReview(@PathVariable Long courseId, @RequestBody ReviewDto reviewDto, @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<Review> addReview(@PathVariable String courseId, @RequestBody ReviewDto reviewDto, @AuthenticationPrincipal Jwt jwt) {
 
         // Spring Security provides the user's details from the JWT.
         String userEmail = jwt.getClaimAsString("email");

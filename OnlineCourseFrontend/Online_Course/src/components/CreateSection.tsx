@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import "../Section.css";
+import "../css/Section.css";
 import { SectionList } from "./SectionList";
 import { AuthContext } from "react-oauth2-code-pkce";
 
@@ -14,15 +14,15 @@ export const CreateSection = ({
   const [refreshKey, setRefreshKey] = useState(0);
   const { token } = useContext(AuthContext);
 
-  // REMOVED: The sections state and fetchSections logic are no longer needed here.
   // SectionList now handles its own data fetching.
+  console.log(courseId);
 
   const handleCreate = async () => {
     if (!sectionName.trim() || !courseId) return;
 
     const payload = {
       name: sectionName,
-      courseId: Number(courseId),
+      courseId: courseId,
     };
 
     try {
