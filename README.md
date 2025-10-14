@@ -1,109 +1,88 @@
-<b>Novusphere</b>
+# Novusphere: An Online Learning Platform
 
-Novusphere: Online Learning Platform
-Novusphere is a modern e-learning platform built with a microservice architecture. It provides a comprehensive ecosystem for instructors to create and manage courses, and for students to enroll, learn, and engage with the content. The platform is designed to be scalable and robust, with a clear separation of concerns between its different services.
+Novusphere is not just an e-learning platform; it is a fully-realized, cloud-native educational ecosystem built on a modern microservice architecture. It provides a robust, scalable, and secure environment for instructors to create and distribute high-quality educational content, and for students to engage in an immersive and interactive learning journey. The application is designed from the ground up with a focus on decoupling services, ensuring high availability and independent scalability for each business domain.
 
-✨ Key Features
-Student Dashboard ("My Learning"): A dedicated space for students to watch video lectures, download course materials, view announcements, and read/write reviews.
 
-Instructor Dashboard: A full suite of tools for instructors to create courses, upload course images, build out sections, and upload video and file content.
 
-Announcements & Notifications: Instructors can post announcements for their courses, which appear as real-time notifications for enrolled students in the navbar.
+<hr/>
 
-Shopping Cart & Checkout: A complete e-commerce flow allowing users to add courses to a cart and proceed to a payment gateway.
+## 🌟 Project Vision
 
-Review & Rating System: Students can leave ratings (including half-stars) and written comments, with an aggregated average rating displayed for each course.
+The mission of Novusphere is to democratize education by providing a powerful yet intuitive platform for both creators and learners. We aim to:
 
-Dynamic Search: Users can search for courses by keywords and explore different categories.
+* **Empower Instructors:** By offering a complete suite of tools that simplifies the process of course creation, content management, and student engagement, allowing educators to focus on what they do best: teaching.
+* **Provide an Accessible Learning Experience:** By creating a seamless, user-friendly interface where students can discover new skills, track their progress, and interact with a community of learners.
+* **Build a Scalable Foundation:** By leveraging a modern microservice architecture, the platform is built to grow, capable of handling an increasing number of users, courses, and features without compromising performance.
 
-🛠️ Technology Stack & Architecture
-The platform is built on a distributed microservice architecture, allowing for independent development, deployment, and scaling of its core functionalities.
+<hr/>
 
-Frontend:
+## ✨ Key Features
 
-Framework: React (with TypeScript)
+Novusphere is comprised of several interconnected features that create a cohesive user experience:
 
-Routing: React Router
+* **Student-Centric Learning Environment:**
+    * **Immersive Course Player:** An intuitive, tab-based "My Learning" dashboard for a focused learning experience.
+    * **Rich Media Consumption:** Seamless video playback and easy access to downloadable course materials like PDFs and source code.
+    * **Real-Time Updates:** An integrated notification system that displays course announcements directly in the navbar.
 
-Authentication Client: react-oauth2-code-pkce for handling OAuth2 flows with Keycloak.
+* **Comprehensive Instructor Toolkit:**
+    * **Course Management Dashboard:** A dedicated space for instructors to create, update, and manage their portfolio of courses.
+    * **Rich Content Uploads:** Tools to upload high-quality course images, structure content into sections, and upload both video lectures and supplementary files.
+    * **Student Engagement:** An announcement system to broadcast updates, news, or messages to all enrolled students for a specific course.
 
-Styling: Plain CSS / CSS Modules
+* **Secure E-commerce and Feedback Loop:**
+    * **Integrated Shopping Cart:** A full-featured shopping cart where users can add multiple courses before proceeding to checkout.
+    * **Secure Payment Processing:** A robust checkout flow integrated with **Stripe** for secure, reliable, and PCI-compliant payment processing.
+    * **Interactive Review System:** A feedback mechanism allowing students to leave detailed reviews with ratings (including half-stars) and written comments, which are aggregated to display an overall course rating.
 
-Backend:
+<hr/>
 
-Framework: Java & Spring Boot
+## 🛠️ How It's Built: Architecture & Technology Stack
 
-Security: Keycloak for Identity and Access Management (IAM) and Spring Security for endpoint protection.
+The platform's foundation is a distributed **microservice architecture**, where each core business capability is an independent, deployable service. This design choice was made to enhance scalability, improve fault isolation, and allow for parallel development and technology evolution.
 
-Inter-Service Communication: Spring Cloud OpenFeign (for synchronous calls) and RabbitMQ (for asynchronous messaging).
 
-API Gateway: Manages and routes all incoming frontend requests.
 
-Microservices:
+[Image of a microservice architecture diagram]
 
-Course Service: Manages course creation, sections, and content metadata.
 
-My Learning Service: Handles user enrollments and tracks course progress.
+### Guiding Principles
 
-Cart Service: Manages the user's shopping cart.
+* **Scalability & Performance:** Each service can be scaled independently based on its specific load.
+* **Resilience:** Failure in one non-critical service (e.g., Reviews) will not bring down the entire platform.
+* **Maintainability:** Smaller, domain-focused codebases are easier to understand, maintain, and update.
+* **Security:** Centralized authentication and authorization with decentralized enforcement at the service level.
 
-Payment Service: Integrates with Stripe for secure payment processing.
+### Backend Technology
 
-Review Service: Manages all course ratings and comments.
+The backend is a collection of specialized Spring Boot services that communicate through both synchronous and asynchronous patterns, orchestrated via an API Gateway.
 
-Announcement Service: Manages course announcements and user notifications.
+* **Framework:** **Java 17** & **Spring Boot 3** form the backbone of all microservices, chosen for its mature ecosystem, performance, and robust tools for building enterprise-grade applications.
+* **Security & Identity:** **Keycloak** serves as the centralized Identity and Access Management (IAM) provider, handling user registration, login, and OAuth2/OIDC token generation. **Spring Security** is used within each microservice to secure REST endpoints by validating the JWTs issued by Keycloak.
+* **Synchronous Communication:** **Spring Cloud OpenFeign** is used to create clean, declarative REST clients for direct, request-response communication between services (e.g., the Payment Service fetching course details from the Course Service).
+* **Asynchronous Communication:** **RabbitMQ** is implemented as a message broker for event-driven, asynchronous communication. This decouples services and handles background tasks efficiently, such as notifying users after an instructor posts a new announcement.
+* **API Gateway:** A **Spring Cloud Gateway** instance acts as the single entry point for all frontend requests. It handles routing to the appropriate microservice and centralizes cross-cutting concerns like security and rate limiting.
 
-Database:
+### Frontend Technology
 
-Primary: MySQL
+The user interface is a modern single-page application (SPA) built for a fast, dynamic, and responsive user experience.
 
-Explored: MongoDB
+* **Framework:** **React** (with **TypeScript**) was chosen for its component-based architecture, which promotes reusability and maintainability. TypeScript adds crucial type safety, reducing bugs and improving the developer experience in a large-scale application.
+* **Routing:** **React Router** manages all client-side routing and navigation, enabling a seamless multi-page experience without full browser reloads.
+* **Authentication Handling:** The **`react-oauth2-code-pkce`** library is used on the client-side to securely manage the Authorization Code Flow with PKCE, which is the recommended OAuth2 flow for SPAs interacting with a server like Keycloak.
 
-Testing:
+### Data & Infrastructure
 
-API Testing: Postman
+* **Database:** **MySQL** is used as the primary relational database. Its transactional nature and structured schema are ideal for storing critical data like user enrollments, course information, and financial records.
+* **Payment Processing:** **Stripe** is fully integrated for all payment-related tasks. By delegating payment processing to Stripe, the application benefits from its robust security, global compliance (PCI DSS), and pre-built checkout experience.
 
-<img width="3999" height="3199" alt="image" src="https://github.com/user-attachments/assets/eb207cc7-ce41-466a-ba78-0eb54647fa7e" />
+<hr/>
 
-🚀 Getting Started
-Follow these instructions to get the project up and running on your local machine for development and testing purposes.
+## 🚀 Future Roadmap
 
-Prerequisites
-Java JDK 17 or later
+* **AI-Powered Features:** Integration of AI models for automatic video transcription and summarization to enhance the learning experience.
+* **Community & Q&A:** A dedicated Q&A section for each course to foster a community and allow students to ask questions.
+* **Gamification:** Introduction of badges, points, and certificates to motivate students and track their achievements.
+* **Advanced Analytics:** A dashboard for instructors to view student engagement, course completion rates, and other key metrics.
 
-Apache Maven
-
-Node.js and npm
-
-MySQL Server
-
-Docker (for running RabbitMQ and Keycloak instances)
-
-A Stripe account and API keys (secret key and publishable key)
-
-An IDE like IntelliJ IDEA or VS Code
-
-Backend Setup
-Each microservice is a separate Spring Boot application and needs to be run independently.
-
-Run Infrastructure: Start your Keycloak and RabbitMQ instances (e.g., using Docker Compose).
-
-Configure Each Service: For each microservice, navigate to its src/main/resources/application.yml file and update the database, Keycloak, RabbitMQ, and Stripe API keys.
-
-Run Each Service: From the root directory of each microservice, run the following command:
-mvn spring-boot:run
-
-Ensure all services (API Gateway, Discovery Service, Keycloak, RabbitMQ, and feature services) are running.
-
-Frontend Setup
-Navigate to the Frontend Directory:
-cd frontend-directory
-
-Install Dependencies:
-npm install
-
-Configure Environment Variables: Create a .env.local file in the frontend directory and add your Stripe publishable key:
-REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_yourPublishableKeyHere
-
-Run the Development Server:
-npm start
+<hr/>
