@@ -1,3 +1,5 @@
+<b>Novusphere</b>
+
 Novusphere: Online Learning Platform
 Novusphere is a modern e-learning platform built with a microservice architecture. It provides a comprehensive ecosystem for instructors to create and manage courses, and for students to enroll, learn, and engage with the content. The platform is designed to be scalable and robust, with a clear separation of concerns between its different services.
 
